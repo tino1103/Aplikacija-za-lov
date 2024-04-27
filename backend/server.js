@@ -1,307 +1,49 @@
-import { createPool } from 'mysql';
+const express = require("express");
+const app = express();
+const mysql = require("mysql");
+app.use(express.json());
+var cors = require("cors");
+app.use(cors());
+var fs = require("fs"); //require file system object
+const bodyParser = require("body-parser");
+//probat koristit sequalizer
+// Parser za JSON podatke
+app.use(bodyParser.json());
 
-// Konfiguracija za povezivanje s MySQL bazom
-const pool = createPool({
-    connectionLimit: 10,
-    host: 'localhost',
-    user: 'root',
-    password: 'Tino1103+-',
-    database: 'LovackiDnevnik'
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const connection = mysql.createConnection({
+    host: "student.veleri.hr",
+    user: "vdenona",
+    password: "11",
+    database: "vdenona",
 });
 
-// CREATE operacija: Dodaj novu životinju
-function createZivotinja(vrsta, opis) {
-    pool.query(
-        'INSERT INTO Zivotinja (vrsta_zivotinje, opis_zivotinje) VALUES (?, ?)',
-        [vrsta, opis],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Dodana životinja s ID:', results.insertId);
-        }
-    );
-}
+connection.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
+});
 
-// READ operacija: Dohvati sve životinje
-function getAllZivotinje() {
-    pool.query('SELECT * FROM Zivotinja', (error, results) => {
-        if (error) throw error;
-        console.log('Podaci o životinjama:', results);
-    });
-}
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log("Server Listening on PORT:", port);
+});
 
-// UPDATE operacija: Ažuriraj životinju
-function updateZivotinja(id, vrsta, opis) {
-    pool.query(
-        'UPDATE Zivotinja SET vrsta_zivotinje = ?, opis_zivotinje = ? WHERE sifra_zivotinje = ?',
-        [vrsta, opis, id],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Ažuriran broj zapisa:', results.affectedRows);
-        }
-    );
-}
+app.get("/status", (request, response) => {
+    const status = {
+        Status: "Running",
+    };
+    response.send(status);
+});
 
-// DELETE operacija: Obriši životinju
-function deleteZivotinja(id) {
-    pool.query(
-        'DELETE FROM Zivotinja WHERE sifra_zivotinje = ?',
-        [id],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Obrisani broj zapisa:', results.affectedRows);
-        }
-    );
-}
+app.post("/unos-boravka", function (req, res) {
+  const { email, password } = req.body;
 
-
-//////////////////////////////////////////////////////////////////
-
-// CREATE operacija: Dodaj novog lovca
-function createLovac(ime, prezime, adresa, datum_rodenja, kontakt, korisnicko_ime, lozinka) {
-    pool.query(
-        'INSERT INTO Lovac (ime, prezime, adresa, datum_rodenja, kontakt, korisnicko_ime, lozinka) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [ime, prezime, adresa, datum_rodenja, kontakt, korisnicko_ime, lozinka],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Dodan lovac s brojem iskaznice:', results.insertId);
-        }
-    );
-}
-
-// READ operacija: Dohvati sve lovce
-function getAllLovci() {
-    pool.query('SELECT * FROM Lovac', (error, results) => {
-        if (error) throw error;
-        console.log('Podaci o lovcima:', results);
-    });
-}
-
-// READ operacija: Dohvati lovca po broju iskaznice
-function getLovacByBrojIskaznice(brojIskaznice) {
-    pool.query(
-        'SELECT * FROM Lovac WHERE broj_lovacke_iskaznice = ?',
-        [brojIskaznice],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Podaci o lovcu:', results);
-        }
-    );
-}
-
-// UPDATE operacija: Ažuriraj lovca
-function updateLovac(brojIskaznice, ime, prezime, adresa, datum_rodenja, kontakt, korisnicko_ime, lozinka) {
-    pool.query(
-        'UPDATE Lovac SET ime = ?, prezime = ?, adresa = ?, datum_rodenja = ?, kontakt = ?, korisnicko_ime = ?, lozinka = ? WHERE broj_lovacke_iskaznice = ?',
-        [ime, prezime, adresa, datum_rodenja, kontakt, korisnicko_ime, lozinka, brojIskaznice],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Ažuriran lovac s brojem iskaznice:', brojIskaznice);
-        }
-    );
-}
-
-// DELETE operacija: Obriši lovca
-function deleteLovac(brojIskaznice) {
-    pool.query(
-        'DELETE FROM Lovac WHERE broj_lovacke_iskaznice = ?',
-        [brojIskaznice],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Obrisan lovac s brojem iskaznice:', brojIskaznice);
-        }
-    );
-}
-
-//////////////////////////////////////////////////////////////////
-
-
-// CREATE operacija: Dodaj novu aktivnost
-function createAktivnost(naziv, datum, vrijeme, opis) {
-    pool.query(
-        'INSERT INTO Popis_aktivnosti (naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti) VALUES (?, ?, ?, ?)',
-        [naziv, datum, vrijeme, opis],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Dodana aktivnost s ID:', results.insertId);
-        }
-    );
-}
-
-// READ operacija: Dohvati sve aktivnosti
-function getAllAktivnosti() {
-    pool.query('SELECT * FROM Popis_aktivnosti', (error, results) => {
-        if (error) throw error;
-        console.log('Podaci o aktivnostima:', results);
-    });
-}
-
-// UPDATE operacija: Ažuriraj aktivnost
-function updateAktivnost(id, naziv, datum, vrijeme, opis) {
-    pool.query(
-        'UPDATE Popis_aktivnosti SET naziv_aktivnosti = ?, datum_aktivnosti = ?, vrijeme_aktivnosti = ?, opis_aktivnosti = ? WHERE sifra_aktivnosti = ?',
-        [naziv, datum, vrijeme, opis, id],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Ažuriran broj zapisa:', results.affectedRows);
-        }
-    );
-}
-
-// DELETE operacija: Obriši aktivnost
-function deleteAktivnost(id) {
-    pool.query(
-        'DELETE FROM Popis_aktivnosti WHERE sifra_aktivnosti = ?',
-        [id],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Obrisani broj zapisa:', results.affectedRows);
-        }
-    );
-}
-
-//////////////////////////////////////////////////////////////////
-
-
-// CREATE operacija: Dodaj osobu u lov
-function createOsobaULovu(brojLovackeIskaznice, sifraAktivnosti) {
-    pool.query(
-        'INSERT INTO Popis_osoba_u_lovu (broj_lovacke_iskaznice, sifra_aktivnosti) VALUES (?, ?)',
-        [brojLovackeIskaznice, sifraAktivnosti],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Dodana osoba u lov s ID:', results.insertId);
-        }
-    );
-}
-
-// READ operacija: Dohvati sve osobe u lovu
-function getAllOsobeULovu() {
-    pool.query('SELECT * FROM Popis_osoba_u_lovu', (error, results) => {
-        if (error) throw error;
-        console.log('Podaci o osobama u lovu:', results);
-    });
-}
-
-// UPDATE operacija: Ažuriraj osobu u lovu
-function updateOsobaULovu(sifraLova, brojLovackeIskaznice, sifraAktivnosti) {
-    pool.query(
-        'UPDATE Popis_osoba_u_lovu SET broj_lovacke_iskaznice = ?, sifra_aktivnosti = ? WHERE sifra_lova = ?',
-        [brojLovackeIskaznice, sifraAktivnosti, sifraLova],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Ažuriran broj zapisa:', results.affectedRows);
-        }
-    );
-}
-
-// DELETE operacija: Obriši osobu iz lova
-function deleteOsobaULovu(sifraLova) {
-    pool.query(
-        'DELETE FROM Popis_osoba_u_lovu WHERE sifra_lova = ?',
-        [sifraLova],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Obrisani broj zapisa:', results.affectedRows);
-        }
-    );
-}
-
-
-//////////////////////////////////////////////////////////////////
-
-
-// CREATE operacija: Dodaj nove bodove lovcu
-function createBodoviLovca(iskaznica, bodovi, opis) {
-    pool.query(
-        'INSERT INTO Bodovi_lovca (broj_lovacke_iskaznice, broj_bodova, opis_dodijeljenog_boda) VALUES (?, ?, ?)',
-        [iskaznica, bodovi, opis],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Dodani bodovi lovcu s ID:', results.insertId);
-        }
-    );
-}
-
-// READ operacija: Dohvati sve bodove lovaca
-function getAllBodoviLovca() {
-    pool.query('SELECT * FROM Bodovi_lovca', (error, results) => {
-        if (error) throw error;
-        console.log('Podaci o bodovima lovaca:', results);
-    });
-}
-
-// UPDATE operacija: Ažuriraj bodove lovca
-function updateBodoviLovca(sifra, iskaznica, bodovi, opis) {
-    pool.query(
-        'UPDATE Bodovi_lovca SET broj_lovacke_iskaznice = ?, broj_bodova = ?, opis_dodijeljenog_boda = ? WHERE sifra_dodijeljenog_boda = ?',
-        [iskaznica, bodovi, opis, sifra],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Ažuriran broj zapisa:', results.affectedRows);
-        }
-    );
-}
-
-// DELETE operacija: Obriši bodove lovca
-function deleteBodoviLovca(sifra) {
-    pool.query(
-        'DELETE FROM Bodovi_lovca WHERE sifra_dodijeljenog_boda = ?',
-        [sifra],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Obrisani broj zapisa:', results.affectedRows);
-        }
-    );
-}
-
-
-//////////////////////////////////////////////////////////////////
-
-
-// CREATE operacija: Dodaj odstrijeljenu životinju
-function createOdstrijel(sifra_zivotinje, sifra_lova, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela) {
-    pool.query(
-        'INSERT INTO Popis_odstrijeljene_zivotinje (sifra_zivotinje, sifra_lova, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela) VALUES (?, ?, ?, ?, ?)',
-        [sifra_zivotinje, sifra_lova, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Dodan odstrijel s ID:', results.insertId);
-        }
-    );
-}
-
-// READ operacija: Dohvati sve odstrijeljene životinje
-function getAllOdstrijeli() {
-    pool.query('SELECT * FROM Popis_odstrijeljene_zivotinje', (error, results) => {
-        if (error) throw error;
-        console.log('Podaci o odstrijelu:', results);
-    });
-}
-
-// UPDATE operacija: Ažuriraj odstrijeljenu životinju
-function updateOdstrijel(id, sifra_zivotinje, sifra_lova, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela) {
-    pool.query(
-        'UPDATE Popis_odstrijeljene_zivotinje SET sifra_zivotinje = ?, sifra_lova = ?, vrijeme_odstrijela = ?, datum_odstrijela = ?, lokacija_odstrijela = ? WHERE sifra_odstrijela = ?',
-        [sifra_zivotinje, sifra_lova, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela, id],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Ažuriran odstrijel s ID:', id, '- Broj ažuriranih zapisa:', results.affectedRows);
-        }
-    );
-}
-
-// DELETE operacija: Obriši odstrijeljenu životinju
-function deleteOdstrijel(id) {
-    pool.query(
-        'DELETE FROM Popis_odstrijeljene_zivotinje WHERE sifra_odstrijela = ?',
-        [id],
-        (error, results) => {
-            if (error) throw error;
-            console.log('Obrisan odstrijel s ID:', id, '- Broj obrisanih zapisa:', results.affectedRows);
-        }
-    );
-}
-
-
-
-pool.end();
+  connection.query("INSERT INTO `korisnici` (`email`, `password`) VALUES (?, ?)", [email, password], function (error, results, fields) {
+    if (error) {
+      console.error("Error inserting boravak:", error);
+      return res.status(500).send({ error: true, message: "Neuspjesno dodavanje boravka." });
+    }
+    res.status(201).send({ error: false, data: results, message: "Boravak je dodan." });
+  });
+});

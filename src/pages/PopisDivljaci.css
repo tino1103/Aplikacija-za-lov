@@ -1,0 +1,48 @@
+.popis-bodova-container {
+    max-width: 600px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f4f4f4;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.user-list {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.user-list th,
+.user-list td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.icon-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.edit-button i,
+.checkbox-button i {
+    font-size: 18px;
+}
+
+.edit-button {
+    color: #4CAF50;
+    /* Zelena boja za uređivanje */
+}
+
+.checkbox-button {
+    color: #2196F3;
+    /* Plava boja za checkbox */
+}

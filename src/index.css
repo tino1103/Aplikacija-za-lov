@@ -11,3 +11,60 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+
+.App {
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.Menu {
+  width: 100%;
+  max-width: 600px;
+  /* Limit the max width of buttons */
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+}
+
+.Button {
+  padding: 20px;
+  background-color: #61dafb;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.Button:hover {
+  background-color: #35a2eb;
+}
+
+/* Media query for tablets */
+@media (min-width: 600px) {
+  .Button {
+    font-size: 1.25rem;
+  }
+}
+
+/* Media query for desktop */
+@media (min-width: 1024px) {
+  .Button {
+    font-size: 1.5rem;
+  }
+}
