@@ -13,6 +13,8 @@ import UnosDivljaci from '../pages/UnosDivljaci';
 import UnosLovca from '../pages/UnosLovca';
 import UnosOstrjela from '../pages/UnosOstrjela';
 import UnosRasporeda from '../pages/UnosRasporeda';
+import GlavniIzbornik from '../pages/GlavniIzbornik';
+
 
 const AppRoutes = () => (
     <Routes>
@@ -28,6 +30,8 @@ const AppRoutes = () => (
         <Route path="/unos-lovca" element={<UnosLovca />} />
         <Route path="/unos-ostrjela" element={<UnosOstrjela />} />
         <Route path="/unos-rasporeda" element={<UnosRasporeda />} />
+        <Route path="/glavni-izbornik" element={<GlavniIzbornik />} />
+
     </Routes>
 );
 
