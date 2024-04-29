@@ -165,3 +165,34 @@ app.post("/prijavi", function (req, res) {
   );
 });
 
+
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const config = require("../aukcije-server/auth.config.js");
+const authJwt = require("../aukcije-server/authJwt.js");
+
+app.post("/login", function (req, res) {
+  const data = req.body;
+  const korisnicko_ime = data.korisnicko_ime;
+  const lozinka = data.lozinka;
+
+  connection.query("SELECT * FROM korisnik WHERE email_korisnika = ?", [korisnicko_ime], function (err, result) {
+    if (err) {
+      res.status(500).json({ success: false, message: "Internal server error" });
+    } else if (result.length > 0) {
+      // Compare passwords
+      bcrypt.compare(lozinka, result[0].lozinka_korisnika, function (err, bcryptRes) {
+        if (bcryptRes) {
+          // Generate JWT token
+          const token = jwt.sign({ id: result[0].broj_lovacke_iskaznice, email: result[0].korisnicko_ime, uloga: result[0].uloga }, config.secret);
+          res.status(200).json({ success: true, message: "Login successful", token: token });
+        } else {
+          res.status(401).json({ success: false, message: "Invalid email or password " });
+        }
+      });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+  });
+});
+
