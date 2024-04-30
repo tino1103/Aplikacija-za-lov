@@ -1,26 +1,41 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
+const navigate = useNavigate();
     const [korisnickoIme, setKorisnickoIme] = useState('');
     const [lozinka, setLozinka] = useState('');
     const [message, setMessage] = useState('');
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        const loginData = {
-            korisnicko_ime: korisnickoIme,
-            lozinka
-        };
-
-        axios.post('http://localhost:3000/prijavi', loginData)
-            .then(response => {
-                setMessage(`Response: ${response.data.message}`);
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-                setMessage(`Error: ${error.message}`);
+        try {
+            // Send a POST request to the login endpoint
+            const response = await axios.post("http://localhost:3000/prijavi", {
+              korisnicko_ime: korisnickoIme,
+              lozinka: lozinka,
             });
+       
+            if (response.data.success) {
+              // If login is successful, save the token in local storage
+              const token = response.data.token;
+              localStorage.setItem("token", token);
+              console.log("Login successful");
+              navigate("/popis-lovaca");
+
+       
+              
+       
+            } else {
+              // Display an error message if login fails
+              setMessage(response.data.message);
+            }
+          } catch (error) {
+            // Handle any other errors (e.g., network errors)
+            console.error("Error during login:", error);
+            setMessage("Internal server error");
+          }
     };
 
     // Styles

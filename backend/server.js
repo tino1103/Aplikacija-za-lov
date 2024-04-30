@@ -1,5 +1,8 @@
 const express = require("express");
 const app = express();
+const jwt = require("jsonwebtoken");
+const config = require("./auth.config.js");
+const authJwt = require("./authJwt.js");
 const mysql = require("mysql");
 app.use(express.json());
 var cors = require("cors");
@@ -36,7 +39,7 @@ app.get("/status", (request, response) => {
   response.send(status);
 });
 
-app.post("/unos-lovca", function (req, res) {
+app.post("/unos-lovca",authJwt.verifyToken, function (req, res) {
   const { ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, lozinka } = req.body;
 
   connection.query(
@@ -151,13 +154,8 @@ app.post("/prijavi", function (req, res) {
         return res.status(500).send({ error: true, message: "Problem prilikom prijave.", detailedError: error.sqlMessage });
       }
       if (results.length > 0) {
-        // If login is successful, indicate where the frontend should redirect the user
-        res.status(200).send({
-          error: false,
-          data: results[0], // Careful with sending sensitive data
-          message: "Prijava uspješna.",
-          redirect: "/glavni-izbornik"  // Tell the frontend to redirect
-        });
+        const token = jwt.sign({ id: results[0].broj_lovacke_iskaznice }, config.secret);
+        res.status(200).json({ success: true, message: "Login successful", token: token });
       } else {
         res.status(401).send({ error: true, message: "Neispravno korisničko ime ili lozinka." });
       }
@@ -166,10 +164,10 @@ app.post("/prijavi", function (req, res) {
 });
 
 
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const config = require("../aukcije-server/auth.config.js");
-const authJwt = require("../aukcije-server/authJwt.js");
+
+
+
+/* const authJwt = require("../aukcije-server/authJwt.js");
 
 app.post("/login", function (req, res) {
   const data = req.body;
@@ -193,6 +191,7 @@ app.post("/login", function (req, res) {
     } else {
       res.status(401).json({ success: false, message: "Invalid email or password" });
     }
-  });
-});
+  }); 
+});*/
+
 

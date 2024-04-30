@@ -1,36 +1,9 @@
 const jwt = require("jsonwebtoken");
-const config = require("../aplikacija-lov/backend/auth.config.js");
+const config = require("./auth.config");
 
-verifyTokenAdmin = (req, res, next) => {
-    /*   let token = req.headers["x-access-token"]; */
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
 
-    if (!token) {
-        return res.status(403).send({
-            message: "No token provided!",
-        });
-    }
 
-    jwt.verify(token, config.secret, (err, decoded) => {
-        if (err) {
-            return res.status(401).send({
-                message: "Unauthorized!",
-            });
-        }
-        req.userId = decoded.id;
-        /*     req.role = decoded.uloga; // Assign the role to the request object */
-        if (decoded.uloga === "admin") {
-            next();
-        } else {
-            res.status(403).send({
-                message: "Require Admin Role!",
-            });
-        }
-    });
-};
-
-verifyTokenUser = (req, res, next) => {
+verifyToken = (req, res, next) => {
     /*   let token = req.headers["x-access-token"]; */
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -53,7 +26,7 @@ verifyTokenUser = (req, res, next) => {
 };
 
 const authJwt = {
-    verifyTokenAdmin: verifyTokenAdmin,
-    verifyTokenUser: verifyTokenUser,
+    
+    verifyToken: verifyToken,
 };
 module.exports = authJwt;

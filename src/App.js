@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
-import AppRoutes from './router/routes';
+import AppRoutes from './router/Routes';
 import './App.css'; // Uvoz CSS datoteke
 
 function App() {
