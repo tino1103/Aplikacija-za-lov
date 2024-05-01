@@ -11,14 +11,12 @@ const navigate = useNavigate();
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            // Send a POST request to the login endpoint
             const response = await axios.post("http://localhost:3000/prijavi", {
               korisnicko_ime: korisnickoIme,
               lozinka: lozinka,
             });
        
             if (response.data.success) {
-              // If login is successful, save the token in local storage
               const token = response.data.token;
               localStorage.setItem("token", token);
               console.log("Login successful");
@@ -28,17 +26,14 @@ const navigate = useNavigate();
               
        
             } else {
-              // Display an error message if login fails
               setMessage(response.data.message);
             }
           } catch (error) {
-            // Handle any other errors (e.g., network errors)
             console.error("Error during login:", error);
             setMessage("Internal server error");
           }
     };
 
-    // Styles
     const formStyle = {
         display: 'flex',
         flexDirection: 'column',

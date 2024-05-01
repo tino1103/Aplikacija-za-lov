@@ -10,6 +10,8 @@ function DataEntryForm() {
     const [korisnickoIme, setKorisnickoIme] = useState('');
     const [lozinka, setLozinka] = useState('');
     const [message, setMessage] = useState('');
+    const [uloga, setUloga] = useState('');
+
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -20,7 +22,8 @@ function DataEntryForm() {
             datumRodjenja,
             kontakt,
             korisnicko_ime: korisnickoIme,
-            lozinka
+            lozinka,
+            uloga
         };
 
         axios.post('http://localhost:3000/unos-lovca', userData)
@@ -139,6 +142,16 @@ function DataEntryForm() {
                         type="text"
                         value={lozinka}
                         onChange={(e) => setLozinka(e.target.value)}
+                        required
+                        style={inputStyle}
+                    />
+                </div>
+                <div>
+                    <label style={labelStyle}>Uloga:</label>
+                    <input
+                        type="text"
+                        value={uloga}
+                        onChange={(e) => setUloga(e.target.value)}
                         required
                         style={inputStyle}
                     />

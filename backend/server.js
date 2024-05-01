@@ -7,10 +7,9 @@ const mysql = require("mysql");
 app.use(express.json());
 var cors = require("cors");
 app.use(cors());
-var fs = require("fs"); //require file system object
+var fs = require("fs"); 
 const bodyParser = require("body-parser");
-//probat koristit sequalizer
-// Parser za JSON podatke
+
 app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -39,22 +38,32 @@ app.get("/status", (request, response) => {
   response.send(status);
 });
 
-app.post("/unos-lovca",authJwt.verifyToken, function (req, res) {
-  const { ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, lozinka } = req.body;
+const bcrypt = require('bcrypt');
+const saltRounds = 10; 
 
-  connection.query(
-    "INSERT INTO `Lovac` (`ime`, `prezime`, `adresa`, `datum_rodjenja`, `kontakt`, `korisnicko_ime`, `lozinka`) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    [ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, lozinka],
-    function (error, results, fields) {
-      if (error) {
-        console.error("Error inserting lovca:", error);
-        // Send back a more detailed error message for debugging
-        return res.status(500).send({ error: true, message: "Neuspješno dodavanje lovca.", detailedError: error.sqlMessage });
-      }
-      res.status(201).send({ error: false, data: results, message: "Lovac je dodan." });
+app.post("/unos-lovca", authJwt.verifyToken("admin"), function (req, res) {
+  const { ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, lozinka, uloga } = req.body;
+
+  bcrypt.hash(lozinka, saltRounds, function (err, hashedPassword) {
+    if (err) {
+      console.error("Error hashing password:", err);
+      return res.status(500).send({ error: true, message: "Problem pri hashiranju lozinke.", detailedError: err.message });
     }
-  );
+
+    connection.query(
+      "INSERT INTO `Lovac` (`ime`, `prezime`, `adresa`, `datum_rodjenja`, `kontakt`, `korisnicko_ime`, `lozinka`, `uloga`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, hashedPassword, uloga],
+      function (error, results, fields) {
+        if (error) {
+          console.error("Error inserting lovca:", error);
+          return res.status(500).send({ error: true, message: "Neuspješno dodavanje lovca.", detailedError: error.sqlMessage });
+        }
+        res.status(201).send({ error: false, data: results, message: "Lovac je dodan." });
+      }
+    );
+  });
 });
+
 
 
 app.post("/unos-aktivnosti", function (req, res) {
@@ -146,52 +155,29 @@ app.post("/prijavi", function (req, res) {
   const { korisnicko_ime, lozinka } = req.body;
 
   connection.query(
-    "SELECT * FROM `Lovac` WHERE `korisnicko_ime` = ? AND `lozinka` = ?",
-    [korisnicko_ime, lozinka],
+    "SELECT * FROM `Lovac` WHERE `korisnicko_ime` = ?",
+    [korisnicko_ime],
     function (error, results, fields) {
       if (error) {
         console.error("Error logging in:", error);
         return res.status(500).send({ error: true, message: "Problem prilikom prijave.", detailedError: error.sqlMessage });
       }
       if (results.length > 0) {
-        const token = jwt.sign({ id: results[0].broj_lovacke_iskaznice }, config.secret);
-        res.status(200).json({ success: true, message: "Login successful", token: token });
+        bcrypt.compare(lozinka, results[0].lozinka, function (err, isMatch) {
+          if (err) {
+            console.error("Error comparing password:", err);
+            return res.status(500).send({ error: true, message: "Problem prilikom provjere lozinke.", detailedError: err.message });
+          }
+          if (isMatch) {
+            const token = jwt.sign({ id: results[0].broj_lovacke_iskaznice, uloga: results[0].uloga }, config.secret, { expiresIn: '24h' });
+            res.status(200).json({ success: true, message: "Login successful", token: token });
+          } else {
+            res.status(401).send({ success: false, message: 'Neispravno korisničko ime ili lozinka.' });
+          }
+        });
       } else {
-        res.status(401).send({ error: true, message: "Neispravno korisničko ime ili lozinka." });
+        res.status(404).send({ success: false, message: 'Korisničko ime ne postoji.' });
       }
     }
   );
 });
-
-
-
-
-
-/* const authJwt = require("../aukcije-server/authJwt.js");
-
-app.post("/login", function (req, res) {
-  const data = req.body;
-  const korisnicko_ime = data.korisnicko_ime;
-  const lozinka = data.lozinka;
-
-  connection.query("SELECT * FROM korisnik WHERE email_korisnika = ?", [korisnicko_ime], function (err, result) {
-    if (err) {
-      res.status(500).json({ success: false, message: "Internal server error" });
-    } else if (result.length > 0) {
-      // Compare passwords
-      bcrypt.compare(lozinka, result[0].lozinka_korisnika, function (err, bcryptRes) {
-        if (bcryptRes) {
-          // Generate JWT token
-          const token = jwt.sign({ id: result[0].broj_lovacke_iskaznice, email: result[0].korisnicko_ime, uloga: result[0].uloga }, config.secret);
-          res.status(200).json({ success: true, message: "Login successful", token: token });
-        } else {
-          res.status(401).json({ success: false, message: "Invalid email or password " });
-        }
-      });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid email or password" });
-    }
-  }); 
-});*/
-
-
