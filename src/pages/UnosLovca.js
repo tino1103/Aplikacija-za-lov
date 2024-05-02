@@ -26,7 +26,18 @@ function DataEntryForm() {
             uloga
         };
 
-        axios.post('http://localhost:3000/unos-lovca', userData)
+        // Retrieve the token from local storage
+        const token = localStorage.getItem('token');
+
+        // Set up the configuration for the axios request including the Authorization header
+        const config = {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        };
+        console.log(token);
+
+        axios.post('http://localhost:3000/unos-lovca', userData, config)
             .then(response => {
                 setMessage(`Response: ${response.data.message}`);
             })

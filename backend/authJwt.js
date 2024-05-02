@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const config = require("../backend/auth.config");
 
-//PRI POZIVU FUNKCIJE ROLE NAPISAT OVAKO "verifyToken("admin, recepcionar")"
-verifyToken = (roles) => (req, res, next) => {
+// Here we declare 'verifyToken' using 'const' to ensure it is properly scoped
+const verifyToken = (roles) => (req, res, next) => {
     // Retrieve the token from the authorization header
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -27,7 +27,7 @@ verifyToken = (roles) => (req, res, next) => {
         const userRole = decoded.uloga;
 
         // Split the input roles string by commas and trim whitespace
-        const rolesArray = roles.split(",").map((role) => role.trim());
+        const rolesArray = roles.split(",").map(role => role.trim());
 
         // Check if the user's role is in the list of provided roles
         if (rolesArray.includes(userRole)) {
@@ -42,6 +42,7 @@ verifyToken = (roles) => (req, res, next) => {
     });
 };
 
+// Export the 'verifyToken' function
 const authJwt = {
     verifyToken,
 };
