@@ -1,7 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Link, useNavigate } from 'react-router-dom'; // Ensure Link and useNavigate are imported
 import AppRoutes from './router/Routes';
-import './App.css'; // Uvoz CSS datoteke
+import './App.css'; // Import CSS file
 
 function App() {
   return (
@@ -15,13 +15,27 @@ function App() {
           <Link to="/popis-divljaci"><button className="app-button">Popis divljaci</button></Link>
           <Link to="/popis-ostrjela"><button className="app-button">Ostrjel</button></Link>
           <Link to="/popis-bodova"><button className="app-button">Bodovi</button></Link>
-          <Link to="/login"><button className="app-button">Prijava</button></Link>
-
+          <LogoutButton />
         </div>
 
         <AppRoutes />
       </div>
     </Router>
+  );
+}
+
+function LogoutButton() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear(); // Clears all local storage data
+    navigate('/login'); // Navigates to login page
+  };
+
+  return (
+    <button onClick={handleLogout} className="app-button1">
+      Odjava
+    </button>
   );
 }
 

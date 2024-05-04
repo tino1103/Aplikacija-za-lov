@@ -5,7 +5,7 @@ function DataEntryForm() {
     const [ime, setIme] = useState('');
     const [prezime, setPrezime] = useState('');
     const [adresa, setAdresa] = useState('');
-    const [datumRodjenja, setDatumRodjenja] = useState('');
+    const [datum_Rodjenja, setDatumRodjenja] = useState('');
     const [kontakt, setKontakt] = useState('');
     const [korisnickoIme, setKorisnickoIme] = useState('');
     const [lozinka, setLozinka] = useState('');
@@ -19,7 +19,7 @@ function DataEntryForm() {
             ime,
             prezime,
             adresa,
-            datumRodjenja,
+            datum_Rodjenja,
             kontakt,
             korisnicko_ime: korisnickoIme,
             lozinka,
@@ -121,7 +121,7 @@ function DataEntryForm() {
                     <label style={labelStyle}>Datum rođenja:</label>
                     <input
                         type="text"
-                        value={datumRodjenja}
+                        value={datum_Rodjenja}
                         onChange={(e) => setDatumRodjenja(e.target.value)}
                         required
                         style={inputStyle}

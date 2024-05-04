@@ -64,24 +64,19 @@ app.post("/unos-lovca", authJwt.verifyToken("admin"), function (req, res) {
   });
 });
 
-app.get("/lovac/:id", authJwt.verifyToken("admin"), function (req, res) {
-  const { id } = req.params;
+app.get("/popis-lovaca", function (req, res) {
   connection.query(
-    "SELECT `ime`, `prezime`, `adresa`, `datum_rodjenja`, `kontakt`, `korisnicko_ime`, `uloga` FROM `Lovac` WHERE `id` = ?",
-    [id],
+    "SELECT `ime`, `prezime`, `adresa`, `datum_rodjenja`, `kontakt`, `korisnicko_ime`, `uloga` FROM `Lovac`",
     function (error, results, fields) {
       if (error) {
-        console.error("Error fetching lovca:", error);
-        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju lovca.", detailedError: error.sqlMessage });
+        console.error("Error fetching lovci:", error);
+        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju podataka o lovcima.", detailedError: error.sqlMessage });
       }
-      if (results.length > 0) {
-        res.send({ error: false, data: results[0], message: "Podaci o lovcu dohvaćeni." });
-      } else {
-        res.status(404).send({ error: true, message: "Lovac nije pronađen." });
-      }
+      res.send({ error: false, data: results, message: "Popis lovaca dohvaćen." });
     }
   );
 });
+
 
 app.put("/azuriraj-lovca/:id", authJwt.verifyToken("admin"), function (req, res) {
   const { id } = req.params;
@@ -106,12 +101,12 @@ app.put("/azuriraj-lovca/:id", authJwt.verifyToken("admin"), function (req, res)
 
 
 
-app.delete("/obrisi-lovca/:id", authJwt.verifyToken("admin"), function (req, res) {
-  const { id } = req.params;
+app.delete("/obrisi-lovca/:brojLovackeIskaznice", function (req, res) {
+  const { brojLovackeIskaznice } = req.params;
 
   connection.query(
-    "DELETE FROM `Lovac` WHERE `id` = ?",
-    [id],
+    "DELETE FROM `Lovac` WHERE `broj_lovacke_iskaznice` = ?",
+    [brojLovackeIskaznice],
     function (error, results, fields) {
       if (error) {
         console.error("Error deleting lovca:", error);
@@ -125,6 +120,7 @@ app.delete("/obrisi-lovca/:id", authJwt.verifyToken("admin"), function (req, res
     }
   );
 });
+
 
 
 //////////////////////////////////////////////////////////////////////////////////
