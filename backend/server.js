@@ -101,21 +101,21 @@ app.put("/azuriraj-lovca/:id", authJwt.verifyToken("admin"), function (req, res)
 
 
 
-app.delete("/obrisi-lovca/:brojLovackeIskaznice", function (req, res) {
-  const { brojLovackeIskaznice } = req.params;
+app.delete('/lovac/:broj_lovacke_iskaznice', (req, res) => {
+  const { broj_lovacke_iskaznice } = req.params;
 
   connection.query(
-    "DELETE FROM `Lovac` WHERE `broj_lovacke_iskaznice` = ?",
-    [brojLovackeIskaznice],
-    function (error, results, fields) {
+    'DELETE FROM Lovac WHERE broj_lovacke_iskaznice = ?',
+    [broj_lovacke_iskaznice],
+    (error, results) => {
       if (error) {
-        console.error("Error deleting lovca:", error);
-        return res.status(500).send({ error: true, message: "Problem pri brisanju lovca.", detailedError: error.sqlMessage });
+        console.error('Error deleting the hunter:', error);
+        return res.status(500).send({ error: true, message: 'Error deleting the hunter', detailedError: error.sqlMessage });
       }
-      if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Lovac nije pronađen." });
+      if (results.affectedRows > 0) {
+        res.send({ error: false, message: 'Hunter deleted successfully', affectedRows: results.affectedRows });
       } else {
-        res.send({ error: false, data: results, message: "Lovac je obrisan." });
+        res.status(404).send({ error: true, message: 'Hunter not found' });
       }
     }
   );

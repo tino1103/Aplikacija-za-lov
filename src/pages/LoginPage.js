@@ -1,37 +1,45 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
 
 function LoginForm() {
-const navigate = useNavigate();
+    const navigate = useNavigate();
     const [korisnickoIme, setKorisnickoIme] = useState('');
     const [lozinka, setLozinka] = useState('');
     const [message, setMessage] = useState('');
+    const [captchaValue, setCaptchaValue] = useState(null);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (!captchaValue) {
+            setMessage("Please solve the captcha to login");
+            return;
+        }
+
         try {
             const response = await axios.post("http://localhost:3000/prijavi", {
-              korisnicko_ime: korisnickoIme,
-              lozinka: lozinka,
+                korisnicko_ime: korisnickoIme,
+                lozinka: lozinka,
+                recaptcha: captchaValue // Assuming backend expects recaptcha response
             });
-       
-            if (response.data.success) {
-              const token = response.data.token;
-              localStorage.setItem("token", token);
-              console.log("Login successful");
-              navigate("/popis-lovaca");
 
-       
-              
-       
+            if (response.data.success) {
+                const token = response.data.token;
+                localStorage.setItem("token", token);
+                console.log("Login successful");
+                navigate("/glavni-izbornik");
             } else {
-              setMessage(response.data.message);
+                setMessage(response.data.message);
             }
-          } catch (error) {
+        } catch (error) {
             console.error("Error during login:", error);
             setMessage("Internal server error");
-          }
+        }
+    };
+
+    const onCaptchaChange = (value) => {
+        setCaptchaValue(value);
     };
 
     const formStyle = {
@@ -81,13 +89,17 @@ const navigate = useNavigate();
                 <div>
                     <label style={{ margin: '10px 0', fontWeight: 'bold' }}>Lozinka:</label>
                     <input
-                        type="password"  // Change type to password for security
+                        type="password"
                         value={lozinka}
                         onChange={(e) => setLozinka(e.target.value)}
                         required
                         style={inputStyle}
                     />
                 </div>
+                <ReCAPTCHA
+                    sitekey="6LckwNApAAAAAF08JaAvD8sSdwdkV1LTquS2CtHU" // Replace YOUR_SITE_KEY with your actual site key
+                    onChange={onCaptchaChange}
+                />
                 <button type="submit" style={buttonStyle}>Prijavi</button>
             </form>
             {message && <p>{message}</p>}

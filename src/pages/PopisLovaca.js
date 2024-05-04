@@ -28,7 +28,7 @@ function PopisLovaca() {
             });
     }, []);
 
-    const handleDelete = (brojLovackeIskaznice) => {
+    const handleDelete = (broj_lovacke_iskaznice) => {
         const token = localStorage.getItem('token');
         const config = {
             headers: {
@@ -36,28 +36,26 @@ function PopisLovaca() {
             }
         };
 
-        axios.delete(`http://localhost:3000/obrisi-lovca/${brojLovackeIskaznice}`, config)
+        axios.delete(`http://localhost:3000/lovac/${broj_lovacke_iskaznice}`, config)
             .then(response => {
                 if (response.data.error) {
                     console.error('Error deleting hunter:', response.data.message);
-                    alert('Error: ' + response.data.message);
+                    alert('Error deleting hunter: ' + response.data.message);
                 } else {
-                    setLovci(prevLovci => prevLovci.filter(lovac => lovac.broj_lovacke_iskaznice !== brojLovackeIskaznice));
+                    // Remove the deleted hunter from the state array
+                    setLovci(prevLovci => prevLovci.filter(lovac => lovac.broj_lovacke_iskaznice !== broj_lovacke_iskaznice));
                     console.log("Deleted successfully");
                 }
             })
             .catch(error => {
-                console.log("broj:" + brojLovackeIskaznice);
+                console.log(broj_lovacke_iskaznice)
                 console.error('Error deleting hunter:', error);
                 alert('Error deleting hunter');
             });
     };
 
-
-
-
     const buttonStyle = {
-        padding: '5px 10px',
+        padding: '20px 50px',
         fontSize: '12px',
         color: 'white',
         backgroundColor: '#FF6347',
