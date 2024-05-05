@@ -13,6 +13,10 @@ import UnosLovca from './pages/UnosLovca';
 import UnosOstrjela from './pages/UnosOstrjela';
 import UnosRasporeda from './pages/UnosRasporeda';
 import GlavniIzbornik from './pages/GlavniIzbornik';
+import PrijvaLovac from './pages/LovacLogin';
+import PocetnaStranica from './pages/Pocetna';
+
+
 
 function App() {
   return (
@@ -31,9 +35,13 @@ function App() {
         <Route path="/unos-ostrjela" element={<UnosOstrjela />} />
         <Route path="/unos-rasporeda" element={<UnosRasporeda />} />
         <Route path="/glavni-izbornik" element={<GlavniIzbornik />} />
+        <Route path="/prijava-lovac" element={<PrijvaLovac />} />
+        <Route path="/pocetna" element={<PocetnaStranica />} />
+
+
 
         {/* Automatically redirect to the login page if no other routes match */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/pocetna" replace />} />
       </Routes>
     </Router>
   );

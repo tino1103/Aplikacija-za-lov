@@ -75,7 +75,7 @@ function LoginForm() {
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
             <form onSubmit={handleSubmit} style={formStyle}>
-                <h1 style={{ color: '#333' }}>Prijava</h1>
+                <h1 style={{ color: '#333' }}>Prijava admin</h1>
                 <div>
                     <label style={{ margin: '10px 0', fontWeight: 'bold' }}>Korisničko ime:</label>
                     <input

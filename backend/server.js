@@ -607,6 +607,37 @@ app.post("/prijavi", function (req, res) {
   );
 });
 
+app.post("/prijavi-lovac", function (req, res) {
+  const { korisnicko_ime, lozinka } = req.body;
+
+  connection.query(
+    "SELECT * FROM `Lovac` WHERE `korisnicko_ime` = ?",
+    [korisnicko_ime],
+    function (error, results, fields) {
+      if (error) {
+        console.error("Error logging in:", error);
+        return res.status(500).send({ error: true, message: "Problem prilikom prijave.", detailedError: error.sqlMessage });
+      }
+      if (results.length > 0) {
+        bcrypt.compare(lozinka, results[0].lozinka, function (err, isMatch) {
+          if (err) {
+            console.error("Error comparing password:", err);
+            return res.status(500).send({ error: true, message: "Problem prilikom provjere lozinke.", detailedError: err.message });
+          }
+          if (isMatch) {
+            const token = jwt.sign({ id: results[0].broj_lovacke_iskaznice, uloga: results[0].uloga }, config.secret, { expiresIn: '24h' });
+            res.status(200).json({ success: true, message: "Login successful", token: token });
+          } else {
+            res.status(401).send({ success: false, message: 'Neispravno korisničko ime ili lozinka.' });
+          }
+        });
+      } else {
+        res.send({ status: 'failure', message: 'Neispravni poaci za prijavu' });
+      }
+    }
+  );
+});
+
 
 
 

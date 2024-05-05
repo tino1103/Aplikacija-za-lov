@@ -19,7 +19,7 @@ function PopisLovaca() {
     // Define a function to handle logout
     const handleLogout = () => {
         localStorage.clear();  // Clear all data stored in local storage
-        navigate('/login');  // Navigate to login page after clearing local storage
+        navigate('/pocetna');  // Navigate to login page after clearing local storage
     };
 
     return (
