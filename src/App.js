@@ -17,12 +17,15 @@ import PrijvaLovac from './pages/LovacLogin';
 import PocetnaStranica from './pages/Pocetna';
 import IzLovac from './pages/IzbornikLovac.js';
 import UpLovac from './pages/AzurirajLovca.js';
+import withAdminProtection from './withAdminProtection';  // Ažurirajte putanju do vaše HOC datoteke ako je potrebno
 
 
 
 
 
 function App() {
+  const PopisLovacaProtected = withAdminProtection(PopisLovaca); // Primjenjujemo HOC na PopisLovaca komponentu
+
   return (
     <Router>
       <Routes>
@@ -30,7 +33,7 @@ function App() {
         <Route path="/popis-bodova" element={<PopisBodova />} />
         <Route path="/popis-divljaci" element={<PopisDivljaci />} />
         <Route path="/Prisutnost" element={<Prisutnost />} />
-        <Route path="/popis-lovaca" element={<PopisLovaca />} />
+        <Route path="/popis-lovaca" element={<PopisLovacaProtected />} /> {/* Koristi zaštićenu komponentu */}
         <Route path="/popis-ostrjela" element={<PopisOstrjela />} />
         <Route path="/raspored-aktivnosti" element={<RasporedAktivnosti />} />
         <Route path="/unos-bodova" element={<UnosBodova />} />
@@ -43,6 +46,7 @@ function App() {
         <Route path="/pocetna" element={<PocetnaStranica />} />
         <Route path="/izbornik-lovac" element={<IzLovac />} />
         <Route path="/a-lovac" element={<UpLovac />} />
+
 
 
 
