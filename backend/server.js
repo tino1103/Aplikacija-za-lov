@@ -66,7 +66,7 @@ app.post("/unos-lovca", authJwt.verifyToken("admin"), function (req, res) {
 
 app.get("/popis-lovaca", function (req, res) {
   connection.query(
-    "SELECT `ime`, `prezime`, `adresa`, `datum_rodjenja`, `kontakt`, `korisnicko_ime`, `uloga` FROM `Lovac`",
+    "SELECT `broj_lovacke_iskaznice`, `ime`, `prezime`, `adresa`, `datum_rodjenja`, `kontakt`, `korisnicko_ime`, `uloga` FROM `Lovac`",
     function (error, results, fields) {
       if (error) {
         console.error("Error fetching lovci:", error);
@@ -101,11 +101,11 @@ app.put("/azuriraj-lovca/:id", authJwt.verifyToken("admin"), function (req, res)
 
 
 
-app.delete('/lovac/:broj_lovacke_iskaznice', (req, res) => {
+app.delete('/lovac-brisi/:broj_lovacke_iskaznice', (req, res) => {
   const { broj_lovacke_iskaznice } = req.params;
 
   connection.query(
-    'DELETE FROM Lovac WHERE broj_lovacke_iskaznice = ?',
+    'DELETE FROM `Lovac` WHERE `Lovac`.`broj_lovacke_iskaznice` = ?',
     [broj_lovacke_iskaznice],
     (error, results) => {
       if (error) {
@@ -580,7 +580,7 @@ app.post("/prijavi", function (req, res) {
   const { korisnicko_ime, lozinka } = req.body;
 
   connection.query(
-    "SELECT * FROM `Lovac` WHERE `korisnicko_ime` = ?",
+    "SELECT * FROM `Lovac` WHERE `korisnicko_ime` = ? AND `uloga` = 'admin'",
     [korisnicko_ime],
     function (error, results, fields) {
       if (error) {
@@ -611,7 +611,7 @@ app.post("/prijavi-lovac", function (req, res) {
   const { korisnicko_ime, lozinka } = req.body;
 
   connection.query(
-    "SELECT * FROM `Lovac` WHERE `korisnicko_ime` = ?",
+    "SELECT * FROM `Lovac` WHERE `korisnicko_ime` = ? AND `uloga` = 'korisnik'",
     [korisnicko_ime],
     function (error, results, fields) {
       if (error) {

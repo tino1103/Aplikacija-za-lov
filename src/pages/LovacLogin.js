@@ -28,7 +28,7 @@ function LoginForm() {
                 const token = response.data.token;
                 localStorage.setItem("token", token);
                 console.log("Login successful");
-                navigate("/glavni-izbornik");
+                navigate("/izbornik-lovac");
             } else {
                 setMessage(response.data.message);
             }

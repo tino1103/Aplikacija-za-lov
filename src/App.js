@@ -15,6 +15,10 @@ import UnosRasporeda from './pages/UnosRasporeda';
 import GlavniIzbornik from './pages/GlavniIzbornik';
 import PrijvaLovac from './pages/LovacLogin';
 import PocetnaStranica from './pages/Pocetna';
+import IzLovac from './pages/IzbornikLovac.js';
+import UpLovac from './pages/AzurirajLovca.js';
+
+
 
 
 
@@ -37,6 +41,10 @@ function App() {
         <Route path="/glavni-izbornik" element={<GlavniIzbornik />} />
         <Route path="/prijava-lovac" element={<PrijvaLovac />} />
         <Route path="/pocetna" element={<PocetnaStranica />} />
+        <Route path="/izbornik-lovac" element={<IzLovac />} />
+        <Route path="/a-lovac" element={<UpLovac />} />
+
+
 
 
 
