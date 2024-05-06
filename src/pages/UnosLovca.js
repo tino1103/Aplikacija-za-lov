@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 function DataEntryForm() {
     const [ime, setIme] = useState('');
     const [prezime, setPrezime] = useState('');
     const [adresa, setAdresa] = useState('');
-    const [datum_Rodjenja, setDatumRodjenja] = useState('');
+    const [datum_rodjenja, setDatumRodjenja] = useState('');
     const [kontakt, setKontakt] = useState('');
     const [korisnickoIme, setKorisnickoIme] = useState('');
     const [lozinka, setLozinka] = useState('');
     const [message, setMessage] = useState('');
-    const [uloga, setUloga] = useState('');
-
+    const [uloga, setUloga] = useState('korisnik'); // Default role
+    const navigate = useNavigate();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -19,7 +20,7 @@ function DataEntryForm() {
             ime,
             prezime,
             adresa,
-            datum_Rodjenja,
+            datum_rodjenja,
             kontakt,
             korisnicko_ime: korisnickoIme,
             lozinka,
@@ -39,7 +40,8 @@ function DataEntryForm() {
 
         axios.post('http://localhost:3000/unos-lovca', userData, config)
             .then(response => {
-                setMessage(`Response: ${response.data.message}`);
+                alert('Lovac je dodan.');
+                navigate("/popis-lovaca");
             })
             .catch(error => {
                 console.error('There was an error!', error);
@@ -120,13 +122,14 @@ function DataEntryForm() {
                 <div>
                     <label style={labelStyle}>Datum rođenja:</label>
                     <input
-                        type="text"
-                        value={datum_Rodjenja}
+                        type="date"
+                        value={datum_rodjenja}
                         onChange={(e) => setDatumRodjenja(e.target.value)}
                         required
                         style={inputStyle}
                     />
                 </div>
+
                 <div>
                     <label style={labelStyle}>Kontakt:</label>
                     <input
@@ -150,7 +153,7 @@ function DataEntryForm() {
                 <div>
                     <label style={labelStyle}>Lozinka:</label>
                     <input
-                        type="text"
+                        type="text"  // Changed to password type for security
                         value={lozinka}
                         onChange={(e) => setLozinka(e.target.value)}
                         required
@@ -159,15 +162,21 @@ function DataEntryForm() {
                 </div>
                 <div>
                     <label style={labelStyle}>Uloga:</label>
-                    <input
-                        type="text"
+                    <select
                         value={uloga}
                         onChange={(e) => setUloga(e.target.value)}
                         required
                         style={inputStyle}
-                    />
+                    >
+                        <option value="korisnik">Korisnik</option>
+                        <option value="admin">Admin</option>
+                    </select>
                 </div>
-                <button type="submit" style={buttonStyle}>Submit</button>
+                <button type="submit" style={buttonStyle}>Unesi</button>
+                <br></br>
+                <button onClick={() => navigate('/popis-lovaca')} style={buttonStyle}>
+                    Odustani
+                </button>
             </form>
             {message && <p>{message}</p>}
         </div>

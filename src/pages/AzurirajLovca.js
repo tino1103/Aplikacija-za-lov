@@ -1,80 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
-function UpdateHunterForm() {
-    const { state } = useLocation();
-    const { lovac } = state || {};
+function ALovac() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
+
+    const location = useLocation();
+    const [lovac, setLovac] = useState({
+        broj_lovacke_iskaznice: '',
         ime: '',
         prezime: '',
         adresa: '',
-        datumRodjenja: '',
+        datum_rodjenja: '',
         kontakt: '',
-        korisnickoIme: '',
-        lozinka: '',
+        korisnicko_ime: '',
         uloga: ''
     });
 
     useEffect(() => {
-        if (lovac) {
-            setFormData({
-                ime: lovac.ime,
-                prezime: lovac.prezime,
-                adresa: lovac.adresa,
-                datumRodjenja: lovac.datum_rodjenja,
-                kontakt: lovac.kontakt,
-                korisnickoIme: lovac.korisnicko_ime,
-                lozinka: '',  // Password fields typically aren't pre-filled for security reasons
-                uloga: lovac.uloga
-            });
+        // Check if location state exists and has lov data
+        if (location.state && location.state.lov) {
+            setLovac(location.state.lov);
         }
-    }, [lovac]);
+    }, [location.state]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [name]: value
-        }));
+    const handleSubmit = async (event) => {
+        event.preventDefault(); // Prevent the form from submitting the default way
+        const { broj_lovacke_iskaznice, ...updateData } = lovac; // Destructure to separate the ID from other data
+
+        try {
+            const response = await axios.put(`http://localhost:3000/azuriraj-lovca/${lovac.broj_lovacke_iskaznice}`, updateData);
+            console.log('Update successful:', response.data);
+            alert('Lovac je ažuriran.');
+            navigate("/popis-lovaca");
+        } catch (error) {
+            console.error('Error updating lovca:', error);
+            alert('Neuspješno ažuriranje lovca.');
+        }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem('token');
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
+    // Styles
+    const formStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '50px',
+        padding: '20px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+        backgroundColor: '#f7f7f7'
+    };
 
-        axios.put(`http://localhost:3000/update-lovca/${lovac.broj_lovacke_iskaznice}`, formData, config)
-            .then(() => {
-                alert('Hunter updated successfully');
-                navigate('/popis-lovaca');
-            })
-            .catch(error => {
-                console.error('Error updating hunter:', error);
-                alert('Failed to update hunter');
-            });
+    const inputStyle = {
+        margin: '10px 0',
+        padding: '10px',
+        width: '300px',
+        borderRadius: '5px',
+        border: '1px solid #ccc'
+    };
+
+    const buttonStyle = {
+        padding: '10px 20px',
+        fontSize: '16px',
+        color: 'white',
+        backgroundColor: '#007BFF',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer'
+    };
+
+    const labelStyle = {
+        margin: '10px 0',
+        fontWeight: 'bold'
     };
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '50px', padding: '20px', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', backgroundColor: '#f7f7f7' }}>
-                <h1>Update Hunter</h1>
-                {/* Similar to your existing form inputs, just map through formData for simplicity */}
-                {Object.keys(formData).map((key) => (
+            <form onSubmit={handleSubmit} style={formStyle}>
+                <h1 style={{ color: '#333' }}>Edit Hunter</h1>
+                {Object.entries(lovac).map(([key, value]) => (
                     <div key={key}>
-                        <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
-                        <input type="text" name={key} value={formData[key]} onChange={handleChange} required style={{ margin: '10px', padding: '10px', width: '300px' }} />
+                        <label style={labelStyle}>{key.replace(/_/g, ' ')}:</label>
+                        <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => setLovac({ ...lovac, [key]: e.target.value })}
+                            style={inputStyle}
+                            required
+                        />
                     </div>
                 ))}
-                <button type="submit" style={{ padding: '10px 20px', fontSize: '16px', color: 'white', backgroundColor: '#007BFF', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Update</button>
+                <button type="submit" style={buttonStyle}>Ažuriraj</button>
+                <br></br>
+
+                <button onClick={() => navigate('/popis-lovaca')} style={buttonStyle}>
+                    Odustani
+                </button>
             </form>
         </div>
     );
 }
 
-export default UpdateHunterForm;
+export default ALovac;

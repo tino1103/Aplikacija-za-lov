@@ -2,6 +2,20 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    let day = '' + date.getDate();
+    let month = '' + (date.getMonth() + 1);
+    let year = date.getFullYear();
+
+    if (day.length < 2)
+        day = '0' + day;
+    if (month.length < 2)
+        month = '0' + month;
+
+    return [day, month, year.toString().substr(-2)].join('/');
+}
+
 function PopisLovaca() {
     const [lovci, setLovci] = useState([]);
     const navigate = useNavigate();
@@ -20,7 +34,12 @@ function PopisLovaca() {
                     console.error('Failed to fetch hunters:', response.data.message);
                     alert('Error: ' + response.data.message);
                 } else {
-                    setLovci(response.data.data);
+                    // Map each lovci datum_rodjenja to formatted date
+                    const formattedLovci = response.data.data.map(lovac => ({
+                        ...lovac,
+                        datum_rodjenja: formatDate(lovac.datum_rodjenja)
+                    }));
+                    setLovci(formattedLovci);
                 }
             })
             .catch(error => {
@@ -29,30 +48,32 @@ function PopisLovaca() {
     }, []);
 
     const handleDelete = (broj_lovacke_iskaznice) => {
-        const token = localStorage.getItem('token');
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        };
-
-        axios.delete(`http://localhost:3000/lovac-brisi/${broj_lovacke_iskaznice}`, config)
-            .then(response => {
-                if (response.data.error) {
-                    console.error('Error deleting hunter:', response.data.message);
-                    alert('Error deleting hunter: ' + response.data.message);
-                } else {
-                    setLovci(prevLovci => prevLovci.filter(lovac => lovac.broj_lovacke_iskaznice !== broj_lovacke_iskaznice));
-                    console.log("Deleted successfully");
+        const confirmDelete = window.confirm("Da li stvarno želite izbrisati lovca?");
+        if (confirmDelete) {
+            const token = localStorage.getItem('token');
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
-            })
-            .catch(error => {
-                console.error('Error deleting hunter:', error);
-                alert('Error deleting hunter');
-            });
+            };
+
+            axios.delete(`http://localhost:3000/lovac-brisi/${broj_lovacke_iskaznice}`, config)
+                .then(response => {
+                    if (response.data.error) {
+                        console.error('Error deleting hunter:', response.data.message);
+                        alert('Error deleting hunter: ' + response.data.message);
+                    } else {
+                        setLovci(prevLovci => prevLovci.filter(lovac => lovac.broj_lovacke_iskaznice !== broj_lovacke_iskaznice));
+                        console.log("Deleted successfully");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting hunter:', error);
+                    alert('Error deleting hunter');
+                });
+        }
     };
 
-    // Updated styles
     const buttonStyle = {
         padding: '10px 20px',
         fontSize: '16px',
@@ -66,10 +87,7 @@ function PopisLovaca() {
 
     const deleteButtonStyle = {
         ...buttonStyle,
-        backgroundColor: '#FF6347',
-        hover: {
-            backgroundColor: '#FF4500'
-        }
+        backgroundColor: '#FF6347'
     };
 
     const tableStyle = {
@@ -125,18 +143,23 @@ function PopisLovaca() {
                                 <td>{lovac.korisnicko_ime}</td>
                                 <td>{lovac.uloga}</td>
                                 <td>
-                                    <button onClick={() => navigate('/a-lovac')} style={buttonStyle}>
-                                        Unesi lovca
+                                    <button onClick={() => navigate('/a-lovac', { state: { lov: lovac } })} style={buttonStyle}>
+                                        Ažuriraj
                                     </button>
-                                    <button onClick={() => handleDelete(lovac.broj_lovacke_iskaznice)} style={deleteButtonStyle}>Delete</button></td>
+                                    <button onClick={() => handleDelete(lovac.broj_lovacke_iskaznice)} style={deleteButtonStyle}>Delete</button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+            <br></br>
+            <button onClick={() => navigate('/glavni-izbornik')} style={buttonStyle}>
+                Odustani
+            </button>
         </div>
-
     );
 }
 
 export default PopisLovaca;
+

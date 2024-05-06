@@ -38,15 +38,10 @@ function PopisLovaca() {
             <button onClick={handleLogout} style={{ ...buttonStyle, backgroundColor: '#FF6347' }}>
                 Odjava
             </button>
-            <button onClick={() => navigate('/unos-lovca')} style={buttonStyle}>
-                Unesi lovca
+            <button onClick={() => navigate('/qr')} style={buttonStyle}>
+               Qr
             </button>
-            <button onClick={() => navigate('/unos-lovca')} style={buttonStyle}>
-                Unesi lovca
-            </button>
-            <button onClick={() => navigate('/unos-lovca')} style={buttonStyle}>
-                Unesi lovca
-            </button>
+            
         </div>
     );
 }

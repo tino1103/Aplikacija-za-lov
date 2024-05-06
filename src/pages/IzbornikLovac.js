@@ -38,6 +38,9 @@ function PopisLovaca() {
             <button onClick={handleLogout} style={{ ...buttonStyle, backgroundColor: '#FF6347' }}>
                 Odjava
             </button>
+            <button onClick={() => navigate('/qr')} style={buttonStyle}>
+                Qr
+            </button>
         </div>
     );
 }

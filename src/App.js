@@ -18,6 +18,7 @@ import PocetnaStranica from './pages/Pocetna';
 import IzLovac from './pages/IzbornikLovac.js';
 import UpLovac from './pages/AzurirajLovca.js';
 import withAdminProtection from './withAdminProtection';  // Ažurirajte putanju do vaše HOC datoteke ako je potrebno
+import QrKod from './pages/QRCodeDisplay.js';
 
 
 
@@ -46,6 +47,8 @@ function App() {
         <Route path="/pocetna" element={<PocetnaStranica />} />
         <Route path="/izbornik-lovac" element={<IzLovac />} />
         <Route path="/a-lovac" element={<UpLovac />} />
+        <Route path="/qr" element={<QrKod />} />
+
 
 
 

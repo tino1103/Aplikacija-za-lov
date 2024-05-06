@@ -78,26 +78,26 @@ app.get("/popis-lovaca", function (req, res) {
 });
 
 
-app.put("/azuriraj-lovca/:id", authJwt.verifyToken("admin"), function (req, res) {
-  const { id } = req.params;
+app.put("/azuriraj-lovca/:broj_lovacke_iskaznice", function (req, res) {
+  const { broj_lovacke_iskaznice } = req.params;
   const { ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, uloga } = req.body;
 
   connection.query(
-    "UPDATE `Lovac` SET `ime` = ?, `prezime` = ?, `adresa` = ?, `datum_rodjenja` = ?, `kontakt` = ?, `korisnicko_ime` = ?, `uloga` = ? WHERE `id` = ?",
-    [ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, uloga, id],
+    "UPDATE `Lovac` SET `ime` = ?, `prezime` = ?, `adresa` = ?, `datum_rodjenja` = ?, `kontakt` = ?, `korisnicko_ime` = ?, `uloga` = ? WHERE `broj_lovacke_iskaznice` = ?",
+    [ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, uloga, broj_lovacke_iskaznice],
     function (error, results, fields) {
       if (error) {
         console.error("Error updating lovca:", error);
-        return res.status(500).send({ error: true, message: "Problem pri ažuriranju lovca.", detailedError: error.sqlMessage });
+        return res.status(500).send({ error: true, message: "Neuspješno ažuriranje lovca.", detailedError: error.sqlMessage });
       }
       if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Lovac nije pronađen." });
-      } else {
-        res.send({ error: false, data: results, message: "Podaci o lovcu ažurirani." });
+        return res.status(404).send({ error: true, message: "Lovac nije pronađen." });
       }
+      res.status(200).send({ error: false, data: results, message: "Lovac je ažuriran." });
     }
   );
 });
+
 
 
 
