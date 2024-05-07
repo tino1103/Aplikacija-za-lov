@@ -125,83 +125,80 @@ app.delete('/lovac-brisi/:broj_lovacke_iskaznice', (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-app.post("/unos-aktivnosti", function (req, res) {
-  const { sifra_aktivnosti, naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti } = req.body;
+app.post("/unos-aktivnosti", authJwt.verifyToken("admin"), function (req, res) {
+  const { naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti } = req.body;
 
   connection.query(
-    "INSERT INTO `Popis_aktivnosti` (`sifra_aktivnosti`, `naziv_aktivnosti`, `datum_aktivnosti`, `vrijeme_aktivnosti`, `opis_aktivnosti`) VALUES (?, ?, ?, ?, ?)",
-    [sifra_aktivnosti, naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti],
+    "INSERT INTO `Popis_aktivnosti` (`naziv_aktivnosti`, `datum_aktivnosti`, `vrijeme_aktivnosti`, `opis_aktivnosti`) VALUES (?, ?, ?, ?)",
+    [naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti],
     function (error, results, fields) {
       if (error) {
-        console.error("Error inserting aktivnost:", error);
-        return res.status(500).send({ error: true, message: "Neuspješno dodavanje aktivnosti.", detailedError: error.sqlMessage });
+        console.error("Error inserting activity:", error);
+        return res.status(500).send({ error: true, message: "Failed to add activity.", detailedError: error.sqlMessage });
       }
-      res.status(201).send({ error: false, data: results, message: "Aktivnost je dodana." });
+      res.status(201).send({ error: false, data: results, message: "Activity added successfully." });
     }
   );
 });
 
 
-app.get("/aktivnost/:sifra", function (req, res) {
-  const { sifra } = req.params;
+
+app.get("/popis-aktivnosti", function (req, res) {
   connection.query(
-    "SELECT `naziv_aktivnosti`, `datum_aktivnosti`, `vrijeme_aktivnosti`, `opis_aktivnosti` FROM `Popis_aktivnosti` WHERE `sifra_aktivnosti` = ?",
-    [sifra],
+    "SELECT `sifra_aktivnosti`, `naziv_aktivnosti`, `datum_aktivnosti`, `vrijeme_aktivnosti`, `opis_aktivnosti` FROM `Popis_aktivnosti`",
     function (error, results, fields) {
       if (error) {
-        console.error("Error fetching aktivnost:", error);
-        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju aktivnosti.", detailedError: error.sqlMessage });
+        console.error("Error fetching activities:", error);
+        return res.status(500).send({ error: true, message: "Problem retrieving activity data.", detailedError: error.sqlMessage });
       }
-      if (results.length > 0) {
-        res.send({ error: false, data: results[0], message: "Podaci o aktivnosti dohvaćeni." });
-      } else {
-        res.status(404).send({ error: true, message: "Aktivnost nije pronađena." });
-      }
+      res.send({ error: false, data: results, message: "List of activities retrieved successfully." });
     }
   );
 });
 
-app.put("/azuriraj-aktivnost/:sifra", function (req, res) {
-  const { sifra } = req.params;
+
+app.put("/azuriraj-aktivnost/:sifra_aktivnosti", function (req, res) {
+  const { sifra_aktivnosti } = req.params;
   const { naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti } = req.body;
 
   connection.query(
     "UPDATE `Popis_aktivnosti` SET `naziv_aktivnosti` = ?, `datum_aktivnosti` = ?, `vrijeme_aktivnosti` = ?, `opis_aktivnosti` = ? WHERE `sifra_aktivnosti` = ?",
-    [naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti, sifra],
+    [naziv_aktivnosti, datum_aktivnosti, vrijeme_aktivnosti, opis_aktivnosti, sifra_aktivnosti],
     function (error, results, fields) {
       if (error) {
-        console.error("Error updating aktivnost:", error);
-        return res.status(500).send({ error: true, message: "Problem pri ažuriranju aktivnosti.", detailedError: error.sqlMessage });
+        console.error("Error updating activity:", error);
+        return res.status(500).send({ error: true, message: "Failed to update activity.", detailedError: error.sqlMessage });
       }
       if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Aktivnost nije pronađena." });
-      } else {
-        res.send({ error: false, data: results, message: "Podaci o aktivnosti ažurirani." });
+        return res.status(404).send({ error: true, message: "Activity not found." });
       }
+      res.status(200).send({ error: false, data: results, message: "Activity updated successfully." });
     }
   );
 });
 
 
-app.delete("/obrisi-aktivnost/:sifra", function (req, res) {
-  const { sifra } = req.params;
+
+app.delete('/obrisi-aktivnost/:sifra_aktivnosti', (req, res) => {
+  const { sifra_aktivnosti } = req.params;
 
   connection.query(
-    "DELETE FROM `Popis_aktivnosti` WHERE `sifra_aktivnosti` = ?",
-    [sifra],
-    function (error, results, fields) {
+    'DELETE FROM `Popis_aktivnosti` WHERE `sifra_aktivnosti` = ?',
+    [sifra_aktivnosti],
+    (error, results) => {
       if (error) {
-        console.error("Error deleting aktivnost:", error);
-        return res.status(500).send({ error: true, message: "Problem pri brisanju aktivnosti.", detailedError: error.sqlMessage });
+        console.error('Error deleting activity:', error);
+        return res.status(500).send({ error: true, message: 'Error deleting activity', detailedError: error.sqlMessage });
       }
-      if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Aktivnost nije pronađena." });
+      if (results.affectedRows > 0) {
+        res.send({ error: false, message: 'Activity deleted successfully', affectedRows: results.affectedRows });
       } else {
-        res.send({ error: false, data: results, message: "Aktivnost je obrisana." });
+        res.status(404).send({ error: true, message: 'Activity not found' });
       }
     }
   );
 });
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -496,80 +493,77 @@ app.delete("/obrisi-osobu-u-lovu/:sifra_lova", function (req, res) {
 //////////////////////////////////////////////////////////////////////////////
 
 app.post("/unos-zivotinje", function (req, res) {
-  const { sifra_zivotinje, vrsta_zivotinje, opis_zivotinje } = req.body;
+  const { vrsta_zivotinje, opis_zivotinje } = req.body;
 
   connection.query(
-    "INSERT INTO `Zivotinja` (`sifra_zivotinje`, `vrsta_zivotinje`, `opis_zivotinje`) VALUES (?, ?, ?)",
-    [sifra_zivotinje, vrsta_zivotinje, opis_zivotinje],
+    "INSERT INTO `Zivotinja` (`vrsta_zivotinje`, `opis_zivotinje`) VALUES (?, ?)",
+    [vrsta_zivotinje, opis_zivotinje],
     function (error, results, fields) {
       if (error) {
-        console.error("Error inserting zivotinja:", error);
-        return res.status(500).send({ error: true, message: "Neuspješno dodavanje životinje.", detailedError: error.sqlMessage });
+        console.error("Error adding animal:", error);
+        return res.status(500).send({ error: true, message: "Failed to add animal.", detailedError: error.sqlMessage });
       }
-      res.status(201).send({ error: false, data: results, message: "Životinja je dodana." });
+      res.status(201).send({ error: false, data: results, message: "Animal added successfully." });
     }
   );
 });
 
-app.get("/zivotinja/:sifra", function (req, res) {
-  const { sifra } = req.params;
+
+app.get("/popis-zivotinja", function (req, res) {
   connection.query(
-    "SELECT `vrsta_zivotinje`, `opis_zivotinje` FROM `Zivotinja` WHERE `sifra_zivotinje` = ?",
-    [sifra],
+    "SELECT `sifra_zivotinje`, `vrsta_zivotinje`, `opis_zivotinje` FROM `Zivotinja`",
     function (error, results, fields) {
       if (error) {
-        console.error("Error fetching zivotinja:", error);
-        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju životinje.", detailedError: error.sqlMessage });
+        console.error("Error fetching animals:", error);
+        return res.status(500).send({ error: true, message: "Problem retrieving animal data.", detailedError: error.sqlMessage });
       }
-      if (results.length > 0) {
-        res.send({ error: false, data: results[0], message: "Podaci o životinji dohvaćeni." });
-      } else {
-        res.status(404).send({ error: true, message: "Životinja nije pronađena." });
-      }
+      res.send({ error: false, data: results, message: "List of animals retrieved successfully." });
     }
   );
 });
 
-app.put("/azuriraj-zivotinju/:sifra", function (req, res) {
-  const { sifra } = req.params;
+
+app.put("/azuriraj-zivotinju/:sifra_zivotinje", function (req, res) {
+  const { sifra_zivotinje } = req.params;
   const { vrsta_zivotinje, opis_zivotinje } = req.body;
 
   connection.query(
     "UPDATE `Zivotinja` SET `vrsta_zivotinje` = ?, `opis_zivotinje` = ? WHERE `sifra_zivotinje` = ?",
-    [vrsta_zivotinje, opis_zivotinje, sifra],
+    [vrsta_zivotinje, opis_zivotinje, sifra_zivotinje],
     function (error, results, fields) {
       if (error) {
-        console.error("Error updating zivotinja:", error);
-        return res.status(500).send({ error: true, message: "Problem pri ažuriranju životinje.", detailedError: error.sqlMessage });
+        console.error("Error updating animal:", error);
+        return res.status(500).send({ error: true, message: "Failed to update animal.", detailedError: error.sqlMessage });
       }
       if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Životinja nije pronađena." });
-      } else {
-        res.send({ error: false, data: results, message: "Podaci o životinji ažurirani." });
+        return res.status(404).send({ error: true, message: "Animal not found." });
       }
+      res.status(200).send({ error: false, data: results, message: "Animal updated successfully." });
     }
   );
 });
 
-app.delete("/obrisi-zivotinju/:sifra", function (req, res) {
-  const { sifra } = req.params;
+
+app.delete('/brisi-zivotinju/:sifra_zivotinje', (req, res) => {
+  const { sifra_zivotinje } = req.params;
 
   connection.query(
-    "DELETE FROM `Zivotinja` WHERE `sifra_zivotinje` = ?",
-    [sifra],
-    function (error, results, fields) {
+    'DELETE FROM `Zivotinja` WHERE `sifra_zivotinje` = ?',
+    [sifra_zivotinje],
+    (error, results) => {
       if (error) {
-        console.error("Error deleting zivotinja:", error);
-        return res.status(500).send({ error: true, message: "Problem pri brisanju životinje.", detailedError: error.sqlMessage });
+        console.error('Error deleting the animal:', error);
+        return res.status(500).send({ error: true, message: 'Error deleting the animal', detailedError: error.sqlMessage });
       }
-      if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Životinja nije pronađena." });
+      if (results.affectedRows > 0) {
+        res.send({ error: false, message: 'Animal deleted successfully', affectedRows: results.affectedRows });
       } else {
-        res.send({ error: false, data: results, message: "Životinja je obrisana." });
+        res.status(404).send({ error: true, message: 'Animal not found' });
       }
     }
   );
 });
+
 
 
 
@@ -636,33 +630,5 @@ app.post("/prijavi-lovac", function (req, res) {
       }
     }
   );
-});
-
-
-
-
-
-
-
-
-
-
-const QRCode = require("qrcode");
-
-app.use(express.json());
-
-app.post("/generate-qr", (req, res) => {
-  const { brojLovackeIskaznice, korisnickoIme } = req.body;
-
-
-  const qrContent = `Broj iskaznice: ${brojLovackeIskaznice}, Korisničko ime: ${korisnickoIme}`;
-
-  QRCode.toDataURL(qrContent, { errorCorrectionLevel: 'H' }, (err, url) => {
-    if (err) {
-      console.error("Error generating QR code:", err);
-      return res.status(500).send({ error: true, message: "Problem pri generiranju QR koda.", detailedError: err.message });
-    }
-    res.status(200).send({ success: true, qrCodeUrl: url, message: "QR kod je uspješno generiran." });
-  });
 });
 
