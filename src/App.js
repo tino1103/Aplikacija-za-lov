@@ -18,10 +18,13 @@ import PocetnaStranica from './pages/Pocetna';
 import IzLovac from './pages/IzbornikLovac.js';
 import UpLovac from './pages/AzurirajLovca.js';
 import UpDivljaci from './pages/AzurirajDivljac.js';
+import UpBod from './pages/AzurirajBodove.js';
 import UpRaspored from './pages/AzurirajRaspored.js';
 import withAdminProtection from './withAdminProtection';  // Ažurirajte putanju do vaše HOC datoteke ako je potrebno
 import QrKod from './pages/QRCodeDisplay.js';
 import SkeniranjeKoda from './pages/SkeniranjeKoda.js';
+import UnosPrisutnosti from './pages/UnosLuLov.js';
+
 
 
 
@@ -45,6 +48,8 @@ function App() {
         <Route path="/unos-divljaci" element={<UnosDivljaci />} />
         <Route path="/unos-lovca" element={<UnosLovca />} />
         <Route path="/unos-ostrjela" element={<UnosOstrjela />} />
+        <Route path="/unos-prisutnosti" element={<UnosPrisutnosti />} />
+
         <Route path="/unos-rasporeda" element={<UnosRasporeda />} />
         <Route path="/glavni-izbornik" element={<GlavniIzbornik />} />
         <Route path="/prijava-lovac" element={<PrijvaLovac />} />
@@ -53,6 +58,8 @@ function App() {
         <Route path="/a-lovac" element={<UpLovac />} />
         <Route path="/a-divljac" element={<UpDivljaci />} />
         <Route path="/a-raspored" element={<UpRaspored />} />
+        <Route path="/a-bodovi" element={<UpBod />} />
+
         <Route path="/qr" element={<QrKod />} />
         <Route path="/skeniranje-koda" element={<SkeniranjeKoda />} />
 

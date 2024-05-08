@@ -13,7 +13,7 @@ function formatDate(dateString) {
     if (month.length < 2)
         month = '0' + month;
 
-    return [year, month, day].join('-'); // Changed to YYYY-MM-DD format for date display
+    return [day, month, year].join('/'); // Changed to YYYY-MM-DD format for date display
 }
 
 function formatTime(timeString) {

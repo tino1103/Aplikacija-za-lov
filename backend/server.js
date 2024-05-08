@@ -78,6 +78,7 @@ app.get("/popis-lovaca", function (req, res) {
 });
 
 
+
 app.put("/azuriraj-lovca/:broj_lovacke_iskaznice", function (req, res) {
   const { broj_lovacke_iskaznice } = req.params;
   const { ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, uloga } = req.body;
@@ -208,8 +209,13 @@ app.delete('/obrisi-aktivnost/:sifra_aktivnosti', (req, res) => {
 app.post("/unos-bodova", function (req, res) {
   const { broj_lovacke_iskaznice, broj_bodova, opis_dodijeljenog_boda } = req.body;
 
+  // Ensure that the hunter ID (broj_lovacke_iskaznice) is provided
+  if (!broj_lovacke_iskaznice) {
+    return res.status(400).send({ error: true, message: "Broj lovačke iskaznice je obavezan." });
+  }
+
   connection.query(
-    "INSERT INTO `Bodovi_lovca` (`broj_lovacke_iskaznice`, `broj_bodova`, `opis_dodijeljenog_boda`) VALUES (?, ?, ?)",
+    "INSERT INTO `Bodovi` (`broj_lovacke_iskaznice`, `broj_bodova`, `opis_dodijeljenog_boda`) VALUES (?, ?, ?)",
     [broj_lovacke_iskaznice, broj_bodova, opis_dodijeljenog_boda],
     function (error, results, fields) {
       if (error) {
@@ -222,33 +228,30 @@ app.post("/unos-bodova", function (req, res) {
 });
 
 
-app.get("/bodovi-lovca/:broj_iskaznice", function (req, res) {
-  const { broj_iskaznice } = req.params;
+
+app.get("/popis-bodova", function (req, res) {
   connection.query(
-    "SELECT `broj_bodova`, `opis_dodijeljenog_boda` FROM `Bodovi_lovca` WHERE `broj_lovacke_iskaznice` = ?",
-    [broj_iskaznice],
+    `SELECT b.sifra_dodijeljenog_boda, b.broj_bodova, b.opis_dodijeljenog_boda, l.broj_lovacke_iskaznice, l.ime, l.prezime, l.adresa, l.datum_rodjenja, l.kontakt, l.korisnicko_ime, l.uloga 
+        FROM Bodovi b 
+        JOIN Lovac l ON b.broj_lovacke_iskaznice = l.broj_lovacke_iskaznice`,
     function (error, results, fields) {
       if (error) {
-        console.error("Error fetching bodovi:", error);
-        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju bodova.", detailedError: error.sqlMessage });
+        console.error("Error fetching bodovi and associated hunter data:", error);
+        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju podataka o bodovima i lovcima.", detailedError: error.sqlMessage });
       }
-      if (results.length > 0) {
-        res.send({ error: false, data: results, message: "Podaci o bodovima dohvaćeni." });
-      } else {
-        res.status(404).send({ error: true, message: "Bodovi za navedenu lovačku iskaznicu nisu pronađeni." });
-      }
+      res.send({ error: false, data: results, message: "Popis bodova i povezani podaci o lovcima dohvaćeni." });
     }
   );
 });
 
 
-app.put("/azuriraj-bodove/:id", function (req, res) {
-  const { id } = req.params;
+app.put("/azuriraj-bodove/:sifra_dodijeljenog_boda", function (req, res) {
+  const { sifra_dodijeljenog_boda } = req.params;
   const { broj_bodova, opis_dodijeljenog_boda } = req.body;
 
   connection.query(
-    "UPDATE `Bodovi_lovca` SET `broj_bodova` = ?, `opis_dodijeljenog_boda` = ? WHERE `id` = ?",
-    [broj_bodova, opis_dodijeljenog_boda, id],
+    "UPDATE `Bodovi` SET `broj_bodova` = ?, `opis_dodijeljenog_boda` = ? WHERE `sifra_dodijeljenog_boda` = ?",
+    [broj_bodova, opis_dodijeljenog_boda, sifra_dodijeljenog_boda],
     function (error, results, fields) {
       if (error) {
         console.error("Error updating bodovi:", error);
@@ -264,12 +267,12 @@ app.put("/azuriraj-bodove/:id", function (req, res) {
 });
 
 
-app.delete("/obrisi-bodove/:id", function (req, res) {
-  const { id } = req.params;
+app.delete("/obrisi-bodove/:sifra_dodijeljenog_boda", function (req, res) {
+  const { sifra_dodijeljenog_boda } = req.params;
 
   connection.query(
-    "DELETE FROM `Bodovi_lovca` WHERE `id` = ?",
-    [id],
+    "DELETE FROM`Bodovi` WHERE`Bodovi`.`sifra_dodijeljenog_boda` = ?",
+    [sifra_dodijeljenog_boda],
     function (error, results, fields) {
       if (error) {
         console.error("Error deleting bodovi:", error);
@@ -289,40 +292,40 @@ app.delete("/obrisi-bodove/:id", function (req, res) {
 //////////////////////////////////////////////////////////////////////////////
 
 
-app.post("/unos-ostreljene-zivotinje", function (req, res) {
-  const { sifra_zivotinje, sifra_lova, vrijeme_odstrela, datum_odstrela, lokacija_odstrela } = req.body;
 
-  // Provjera da li je osoba prisutna u lovu na današnji dan
-  const checkPresenceSql = `
-    SELECT * FROM Popis_osoba_u_lovu
-    WHERE sifra_lova = ? AND datum_aktivnosti = CURDATE()
-  `;
+app.post("/unos-ostrjelene-zivotinje", function (req, res) {
+  const { broj_lovacke_iskaznice, sifra_zivotinje, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela } = req.body;
 
-  connection.query(checkPresenceSql, [sifra_lova], function (error, results, fields) {
-    if (error) {
-      console.error("Error checking presence in hunt:", error);
-      return res.status(500).send({ error: true, message: "Problem pri provjeri prisutnosti u lovu.", detailedError: error.sqlMessage });
+  connection.query(
+    "INSERT INTO `Popis_ostrjelene_zivotinje` (`broj_lovacke_iskaznice`, `sifra_zivotinje`, `vrijeme_odstrijela`, `datum_odstrijela`, `lokacija_odstrijela`) VALUES (?, ?, ?, ?, ?)",
+    [broj_lovacke_iskaznice, sifra_zivotinje, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela],
+    function (error, results, fields) {
+      if (error) {
+        console.error("Error adding culled animal:", error);
+        return res.status(500).send({ error: true, message: "Failed to add culled animal.", detailedError: error.sqlMessage });
+      }
+      res.status(201).send({ error: false, data: results, message: "Culled animal added successfully." });
     }
-
-    // Ako je osoba prisutna, izvrši unos ostreljene životinje
-    if (results.length > 0) {
-      const insertAnimalSql = `
-        INSERT INTO Popis_ostreljene_zivotinje
-        (sifra_zivotinje, sifra_lova, vrijeme_odstrela, datum_odstrela, lokacija_odstrela) 
-        VALUES (?, ?, ?, ?, ?)
-      `;
-      connection.query(insertAnimalSql, [sifra_zivotinje, sifra_lova, vrijeme_odstrela, datum_odstrela, lokacija_odstrela], function (insertError, insertResults) {
-        if (insertError) {
-          console.error("Error inserting ostreljena zivotinja:", insertError);
-          return res.status(500).send({ error: true, message: "Neuspješno dodavanje ostreljene životinje.", detailedError: insertError.sqlMessage });
-        }
-        res.status(201).send({ error: false, data: insertResults, message: "Ostreljena životinja je dodana." });
-      });
-    } else {
-      res.status(403).send({ error: true, message: "Osoba nije prisutna u lovu na današnji dan." });
-    }
-  });
+  );
 });
+
+
+app.get("/vrste-zivotinja", function (req, res) {
+  connection.query(
+    "SELECT sifra_zivotinje, vrsta_zivotinje FROM Zivotinja",
+    function (error, results) {
+      if (error) {
+        console.error("Error fetching animal types:", error);
+        return res.status(500).send({ error: true, message: "Failed to fetch animal types.", detailedError: error.sqlMessage });
+      }
+      res.send({ error: false, data: results, message: "Animal types fetched successfully." });
+    }
+  );
+});
+
+
+
+
 
 
 app.get("/ostreljena-zivotinja/:sifra", function (req, res) {
@@ -391,98 +394,98 @@ app.delete("/obrisi-ostreljenu-zivotinju/:sifra", function (req, res) {
 //////////////////////////////////////////////////////////////////////////////
 
 app.post("/unos-osobe-u-lov", function (req, res) {
-  const { sifra_lova, broj_lovacke_iskaznice, sifra_aktivnosti, sifra_dodijeljenog_boda } = req.body;
+  const { broj_lovacke_iskaznice } = req.body;
+  const today = new Date().toISOString().slice(0, 10); // Format today's date as YYYY-MM-DD
 
-  const checkPointsSql = `
-    SELECT SUM(broj_bodova) AS totalPoints 
-    FROM Bodovi_lovca 
-    WHERE broj_lovacke_iskaznice = ?
-  `;
+  // First, find the activity ID with today's date
+  connection.query(
+    "SELECT sifra_aktivnosti FROM `Popis_aktivnosti` WHERE datum_aktivnosti = ?",
+    [today],
+    function (err, activityResults) {
+      if (err) {
+        console.error("Error fetching activity ID:", err);
+        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju šifre aktivnosti.", detailedError: err.message });
+      }
 
-  connection.query(checkPointsSql, [broj_lovacke_iskaznice], function (err, results) {
-    if (err) {
-      console.error("Error checking points:", err);
-      return res.status(500).send({ error: true, message: "Problem pri provjeri bodova.", detailedError: err.sqlMessage });
-    }
+      // Check if an activity exists for today
+      if (activityResults.length === 0) {
+        return res.status(404).send({ error: true, message: "Nema definirane aktivnosti za današnji datum." });
+      }
 
-    if (results[0].totalPoints >= 10) {
-      const insertSql = `
-        INSERT INTO Popis_osoba_u_lovu 
-        (sifra_lova, broj_lovacke_iskaznice, sifra_aktivnosti, sifra_dodijeljenog_boda) 
-        VALUES (?, ?, ?, ?)
-      `;
-      connection.query(insertSql, [sifra_lova, broj_lovacke_iskaznice, sifra_aktivnosti, sifra_dodijeljenog_boda], function (insertError, insertResults) {
-        if (insertError) {
-          console.error("Error inserting osoba u lov:", insertError);
-          return res.status(500).send({ error: true, message: "Neuspješno dodavanje osobe u lov.", detailedError: insertError.sqlMessage });
+      const sifra_aktivnosti = activityResults[0].sifra_aktivnosti;
+
+      // Next, check the total points of the hunter.
+      connection.query(
+        "SELECT SUM(broj_bodova) AS total_points FROM `Bodovi` WHERE broj_lovacke_iskaznice = ?",
+        [broj_lovacke_iskaznice],
+        function (err, results) {
+          if (err) {
+            console.error("Error calculating total points:", err);
+            return res.status(500).send({ error: true, message: "Problem pri izračunu ukupnih bodova.", detailedError: err.message });
+          }
+
+          // Check if total points are 10 or more.
+          if (results[0].total_points >= 10) {
+            // If the hunter has sufficient points, proceed to insert with the sifra_aktivnosti.
+            connection.query(
+              "INSERT INTO `Popis_osoba_u_lovu` (`broj_lovacke_iskaznice`, `sifra_aktivnosti`) VALUES (?, ?)",
+              [broj_lovacke_iskaznice, sifra_aktivnosti],
+              function (error, insertResults) {
+                if (error) {
+                  console.error("Error inserting osoba u lov:", error);
+                  return res.status(500).send({ error: true, message: "Neuspješno dodavanje osobe u lov.", detailedError: error.sqlMessage });
+                }
+                res.status(201).send({ error: false, data: insertResults, message: "Osoba je dodana u lov s aktivnošću." });
+              }
+            );
+          } else {
+            // If the hunter does not have sufficient points, send a failure response.
+            res.status(400).send({ error: true, message: "Lovac nema dovoljno bodova (10 ili više)." });
+          }
         }
-        res.status(201).send({ error: false, data: insertResults, message: "Osoba u lov je dodana." });
-      });
-    } else {
-      res.status(403).send({ error: true, message: "Lovac nema dovoljno bodova (potrebno najmanje 10)." });
-    }
-  });
-});
-
-
-
-app.get("/osoba-u-lovu/:sifra_lova", function (req, res) {
-  const { sifra_lova } = req.params;
-  connection.query(
-    "SELECT `broj_lovacke_iskaznice`, `sifra_aktivnosti`, `sifra_dodijeljenog_boda` FROM `Popis_osoba_u_lovu` WHERE `sifra_lova` = ?",
-    [sifra_lova],
-    function (error, results, fields) {
-      if (error) {
-        console.error("Error fetching osoba u lov:", error);
-        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju osobe u lovu.", detailedError: error.sqlMessage });
-      }
-      if (results.length > 0) {
-        res.send({ error: false, data: results, message: "Podaci o osobama u lovu dohvaćeni." });
-      } else {
-        res.status(404).send({ error: true, message: "Osoba u lovu nije pronađena." });
-      }
+      );
     }
   );
 });
 
 
-app.put("/azuriraj-osobu-u-lovu/:sifra_lova", function (req, res) {
-  const { sifra_lova } = req.params;
-  const { broj_lovacke_iskaznice, sifra_aktivnosti, sifra_dodijeljenog_boda } = req.body;
 
+
+
+app.get("/popis-lovaca-u-lovu", function (req, res) {
   connection.query(
-    "UPDATE `Popis_osoba_u_lovu` SET `broj_lovacke_iskaznice` = ?, `sifra_aktivnosti` = ?, `sifra_dodijeljenog_boda` = ? WHERE `sifra_lova` = ?",
-    [broj_lovacke_iskaznice, sifra_aktivnosti, sifra_dodijeljenog_boda, sifra_lova],
+    `SELECT plu.sifra_lova, l.ime, l.prezime, pa.datum_aktivnosti 
+     FROM Popis_osoba_u_lovu plu
+     JOIN Lovac l ON plu.broj_lovacke_iskaznice = l.broj_lovacke_iskaznice
+     JOIN Popis_aktivnosti pa ON plu.sifra_aktivnosti = pa.sifra_aktivnosti`,
     function (error, results, fields) {
       if (error) {
-        console.error("Error updating osoba u lov:", error);
-        return res.status(500).send({ error: true, message: "Problem pri ažuriranju osobe u lovu.", detailedError: error.sqlMessage });
+        console.error("Error fetching podaci o lovovima:", error);
+        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju podataka o lovovima.", detailedError: error.sqlMessage });
       }
-      if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Osoba u lovu nije pronađena." });
-      } else {
-        res.send({ error: false, data: results, message: "Podaci o osobi u lovu ažurirani." });
-      }
+      res.send({ error: false, data: results, message: "Popis osoba u lovu dohvaćen s detaljima lovaca i aktivnosti." });
     }
   );
 });
 
 
-app.delete("/obrisi-osobu-u-lovu/:sifra_lova", function (req, res) {
+
+
+app.delete('/popis-brisi/:sifra_lova', (req, res) => {
   const { sifra_lova } = req.params;
 
   connection.query(
-    "DELETE FROM `Popis_osoba_u_lovu` WHERE `sifra_lova` = ?",
+    'DELETE FROM `Popis_osoba_u_lovu` WHERE `Popis_osoba_u_lovu`.`sifra_lova` = ?',
     [sifra_lova],
-    function (error, results, fields) {
+    (error, results) => {
       if (error) {
-        console.error("Error deleting osoba u lov:", error);
-        return res.status(500).send({ error: true, message: "Problem pri brisanju osobe u lovu.", detailedError: error.sqlMessage });
+        console.error('Error deleting the hunter:', error);
+        return res.status(500).send({ error: true, message: 'Error deleting the hunter', detailedError: error.sqlMessage });
       }
-      if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Osoba u lovu nije pronađena." });
+      if (results.affectedRows > 0) {
+        res.send({ error: false, message: 'Hunter deleted successfully', affectedRows: results.affectedRows });
       } else {
-        res.send({ error: false, data: results, message: "Osoba u lovu je obrisana." });
+        res.status(404).send({ error: true, message: 'Hunter not found' });
       }
     }
   );
