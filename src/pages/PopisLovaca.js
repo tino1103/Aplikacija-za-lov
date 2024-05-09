@@ -34,7 +34,6 @@ function PopisLovaca() {
                     console.error('Failed to fetch hunters:', response.data.message);
                     alert('Error: ' + response.data.message);
                 } else {
-                    // Map each lovci datum_rodjenja to formatted date
                     const formattedLovci = response.data.data.map(lovac => ({
                         ...lovac,
                         datum_rodjenja: formatDate(lovac.datum_rodjenja)

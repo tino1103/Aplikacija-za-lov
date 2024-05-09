@@ -17,10 +17,8 @@ function DataEntryForm() {
             opis_dodijeljenog_boda: opisDodijeljenogBoda
         };
 
-        // Retrieve the token from local storage
         const token = localStorage.getItem('token');
 
-        // Set up the configuration for the axios request including the Authorization header
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -30,7 +28,7 @@ function DataEntryForm() {
         axios.post('http://localhost:3000/unos-bodova', pointsData, config)
             .then(response => {
                 alert('Bodovi su dodani.');
-                navigate("/popis-bodova"); // Assuming there is a route to list points
+                navigate("/popis-bodova"); 
             })
             .catch(error => {
                 console.error('There was an error!', error);
@@ -102,7 +100,7 @@ function DataEntryForm() {
                     <textarea
                         value={opisDodijeljenogBoda}
                         onChange={(e) => setOpisDodijeljenogBoda(e.target.value)}
-                        style={{ ...inputStyle, height: '100px' }} // Adapted for longer text
+                        style={{ ...inputStyle, height: '100px' }} 
                     />
                 </div>
                 <button type="submit" style={buttonStyle}>Unesi</button>

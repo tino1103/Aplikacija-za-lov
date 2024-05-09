@@ -1,138 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
-
 import { useNavigate } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 
-// Override the default Leaflet marker icon paths
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
-});
-
-function DataEntryForm() {
-    const [brojLovackeIskaznice, setBrojLovackeIskaznice] = useState('');
-    const [animalTypes, setAnimalTypes] = useState([]);
-    const [sifraZivotinje, setSifraZivotinje] = useState('');
-    const [koordinate, setKoordinate] = useState({ latitude: 0, longitude: 0 });
-    const [message, setMessage] = useState('');
+function PopisOstreljeneDivljaci() {
+    const [ostreljeneDivljaci, setOstreljeneDivljaci] = useState([]);
     const navigate = useNavigate();
-    const [mapInitialized, setMapInitialized] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                setBrojLovackeIskaznice(decoded.id.toString());
-            } catch (error) {
-                console.error("Error decoding token:", error);
-                setMessage('Error decoding token');
-            }
-        } else {
-            setMessage('No token found');
-        }
-    }, []);
-
-    useEffect(() => {
-        axios.get('http://localhost:3000/vrste-zivotinja')
-            .then((response) => {
-                setAnimalTypes(response.data.data);
-            })
-            .catch((error) => {
-                console.error('Error fetching animal types!', error);
-                setMessage('Could not load animal types.');
-            });
-    }, []);
-
-    useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                const { latitude, longitude } = position.coords;
-                setKoordinate({ latitude, longitude });
-                setMapInitialized(true);
-            }, (error) => {
-                console.error('Geolocation error:', error);
-            }, {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 60000
-            });
-        }
-    }, []);
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        if (!brojLovackeIskaznice) {
-            setMessage('No hunting license number found.');
-            return;
-        }
-
-        const now = new Date();
-        const datumOdstrijela = now.toISOString().split('T')[0];
-        const vrijemeOdstrijela = now.toTimeString().split(' ')[0];
-
-        const culledAnimalData = {
-            broj_lovacke_iskaznice: brojLovackeIskaznice,
-            sifra_zivotinje: sifraZivotinje,
-            vrijeme_odstrijela: vrijemeOdstrijela,
-            datum_odstrijela: datumOdstrijela,
-            lokacija_odstrijela: `${koordinate.latitude}, ${koordinate.longitude}`
-        };
-
-        const token = localStorage.getItem('token');
-
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         };
 
-        axios.post('http://localhost:3000/unos-ostrjelene-zivotinje', culledAnimalData, config)
-            .then(() => {
-                alert('Ostrjelena životinja je dodana.');
-                navigate('/popis-ostrjelene-zivotinje');
+        axios.get('http://localhost:3000/popis-ostreljene-zivotinje', config)
+            .then(response => {
+                if (response.data.error) {
+                    console.error('Failed to fetch culled animals:', response.data.message);
+                    alert('Error: ' + response.data.message);
+                } else {
+                    const formattedData = response.data.data.map(item => ({
+                        ...item,
+                        datum_odstrijela: formatDate(item.datum_odstrijela) 
+                    }));
+                    setOstreljeneDivljaci(formattedData);
+                }
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('There was an error!', error);
-                setMessage(`Error: ${error.message}`);
             });
-    };
+    }, []);
 
-    // Styles
-    const containerStyle = {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        height: '100vh',
-        backgroundColor: '#eee'
-    };
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return [
+            ('0' + date.getDate()).slice(-2),
+            ('0' + (date.getMonth() + 1)).slice(-2),
+            date.getFullYear(),
+        ].join('/');
+    }
 
-    const formStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '50px',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        backgroundColor: '#f7f7f7'
-    };
+    const handleDelete = (sifra_odstrijela) => {
+        const confirmDelete = window.confirm("Da li stvarno želite izbrisati odstrijeljenu divljač?");
+        if (confirmDelete) {
+            const token = localStorage.getItem('token');
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            };
 
-    const inputStyle = {
-        margin: '10px 0',
-        padding: '10px',
-        width: '300px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
+            axios.delete(`http://localhost:3000/brisi-odstrijel/${sifra_odstrijela}`, config)
+                .then(response => {
+                    if (response.data.error) {
+                        console.error('Error deleting culled animal:', response.data.message);
+                        alert('Error deleting culled animal: ' + response.data.message);
+                    } else {
+                        setOstreljeneDivljaci(prevDivljaci => prevDivljaci.filter(divljac => divljac.sifra_odstrijela !== sifra_odstrijela));
+                        alert("Odstrijeljena divljač uspješno izbrisana.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting culled animal:', error);
+                    alert('Error deleting culled animal');
+                });
+        }
     };
 
     const buttonStyle = {
@@ -142,66 +75,72 @@ function DataEntryForm() {
         backgroundColor: '#007BFF',
         border: 'none',
         borderRadius: '5px',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        marginRight: '10px'
     };
 
-    const labelStyle = {
-        margin: '10px 0',
-        fontWeight: 'bold'
+    const deleteButtonStyle = {
+        ...buttonStyle,
+        backgroundColor: '#FF6347'
     };
 
-    const mapStyle = {
-        width: '650px',
-        height: '650px',
-        margin: '50px'
+    const tableStyle = {
+        width: '100%',
+        borderCollapse: 'separate',
+        borderSpacing: '0',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+        backgroundColor: '#f7f7f7',
+        borderRadius: '10px',
+        overflow: 'hidden'
+    };
+
+    const thTdStyle = {
+        border: '1px solid #ddd',
+        padding: '12px 15px',
+        textAlign: 'left',
+        fontSize: '14px'
     };
 
     return (
-        <div style={containerStyle}>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <h1 style={{ color: '#333' }}>Unos odstrjelene životinje</h1>
-                <div>
-                    <label style={labelStyle}>Vrsta životinje:</label>
-                    <select
-                        value={sifraZivotinje}
-                        onChange={(e) => setSifraZivotinje(e.target.value)}
-                        required
-                        style={inputStyle}
-                    >
-                        <option value="">Odaberi vrstu</option>
-                        {animalTypes.map((animal) => (
-                            <option key={animal.sifra_zivotinje} value={animal.sifra_zivotinje}>{animal.vrsta_zivotinje}</option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label style={labelStyle}>Lokacija odstrijela:</label>
-                    <p>{koordinate.latitude}, {koordinate.longitude}</p>
-                </div>
-                <button type="submit" style={buttonStyle}>Unesi</button>
-                <br />
-                <button onClick={() => navigate('/popis-ostrjelene-zivotinje')} style={buttonStyle}>
-                    Odustani
-                </button>
-            </form>
-            {mapInitialized && koordinate && (
-                <MapContainer
-                    center={[koordinate.latitude, koordinate.longitude]}
-                    zoom={15}
-                    style={mapStyle}
-                >
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    <Marker position={[koordinate.latitude, koordinate.longitude]}>
-                        <Popup>Vaša trenutna lokacija</Popup>
-                    </Marker>
-                </MapContainer>
-            )}
-            {message && <p>{message}</p>}
+        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
+            <button onClick={() => navigate('/unos-ostrjela')} style={buttonStyle}>
+                Unesi odstrijel
+            </button>
+            <h1>Popis Ostrjeljene Divljaci</h1>
+            <table style={tableStyle}>
+                <thead style={thTdStyle}>
+                    <tr>
+                        <th>Ime Lovca</th>
+                        <th>Prezime Lovca</th>
+                        <th>Vrsta Životinje</th>
+                        <th>Datum Odstrijela</th>
+                        <th>Vrijeme Odstrijela</th>
+                        <th>Lokacija Odstrijela</th>
+                        <th>Akcije</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {ostreljeneDivljaci.map((divljac, index) => (
+                        <tr key={index}>
+                            <td>{divljac.ime_lovca}</td>
+                            <td>{divljac.prezime_lovca}</td>
+                            <td>{divljac.vrsta_zivotinje}</td>
+                            <td>{divljac.datum_odstrijela}</td>
+                            <td>{divljac.vrijeme_odstrijela}</td>
+                            <td>{divljac.lokacija_odstrijela}</td>
+                            <td>
+                                <button onClick={() => handleDelete(divljac.sifra_odstrijela)} style={deleteButtonStyle}>Obriši</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <br></br>
+            <button onClick={() => navigate('/glavni-izbornik')} style={buttonStyle}>
+                Odustani
+            </button>
         </div>
     );
 }
 
-export default DataEntryForm;
+export default PopisOstreljeneDivljaci;

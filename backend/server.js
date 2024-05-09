@@ -209,7 +209,6 @@ app.delete('/obrisi-aktivnost/:sifra_aktivnosti', (req, res) => {
 app.post("/unos-bodova", function (req, res) {
   const { broj_lovacke_iskaznice, broj_bodova, opis_dodijeljenog_boda } = req.body;
 
-  // Ensure that the hunter ID (broj_lovacke_iskaznice) is provided
   if (!broj_lovacke_iskaznice) {
     return res.status(400).send({ error: true, message: "Broj lovačke iskaznice je obavezan." });
   }
@@ -328,24 +327,42 @@ app.get("/vrste-zivotinja", function (req, res) {
 
 
 
-app.get("/ostreljena-zivotinja/:sifra", function (req, res) {
-  const { sifra } = req.params;
-  connection.query(
-    "SELECT `sifra_lova`, `vrijeme_odstrela`, `datum_odstrela`, `lokacija_odstrela` FROM `Popis_ostreljene_zivotinje` WHERE `sifra_zivotinje` = ?",
-    [sifra],
-    function (error, results, fields) {
-      if (error) {
-        console.error("Error fetching ostreljena zivotinja:", error);
-        return res.status(500).send({ error: true, message: "Problem pri dohvaćanju podataka o ostreljenoj životinji.", detailedError: error.sqlMessage });
-      }
-      if (results.length > 0) {
-        res.send({ error: false, data: results[0], message: "Podaci o ostreljenoj životinji dohvaćeni." });
-      } else {
-        res.status(404).send({ error: true, message: "Ostreljena životinja nije pronađena." });
-      }
+app.get("/popis-ostreljene-zivotinje", function (req, res) {
+  const query = `
+    SELECT 
+      po.sifra_odstrijela,
+      l.ime AS ime_lovca, 
+      l.prezime AS prezime_lovca, 
+      z.vrsta_zivotinje, 
+      po.datum_odstrijela, 
+      po.vrijeme_odstrijela, 
+      po.lokacija_odstrijela
+    FROM 
+      Popis_ostrjelene_zivotinje AS po
+    JOIN 
+      Lovac AS l ON po.broj_lovacke_iskaznice = l.broj_lovacke_iskaznice
+    JOIN 
+      Zivotinja AS z ON po.sifra_zivotinje = z.sifra_zivotinje
+  `;
+
+  connection.query(query, function (error, results, fields) {
+    if (error) {
+      console.error("Error fetching culled animals:", error);
+      return res.status(500).send({
+        error: true,
+        message: "Problem retrieving culled animal data.",
+        detailedError: error.sqlMessage
+      });
     }
-  );
+
+    res.send({
+      error: false,
+      data: results,
+      message: "List of culled animals retrieved successfully."
+    });
+  });
 });
+
 
 app.put("/azuriraj-ostreljenu-zivotinju/:sifra", function (req, res) {
   const { sifra } = req.params;
@@ -369,25 +386,46 @@ app.put("/azuriraj-ostreljenu-zivotinju/:sifra", function (req, res) {
 });
 
 
-app.delete("/obrisi-ostreljenu-zivotinju/:sifra", function (req, res) {
-  const { sifra } = req.params;
+app.delete("/brisi-odstrijel/:sifra_odstrijela", function (req, res) {
+  const { sifra_odstrijela } = req.params;
 
-  connection.query(
-    "DELETE FROM `Popis_ostreljene_zivotinje` WHERE `sifra_zivotinje` = ?",
-    [sifra],
-    function (error, results, fields) {
-      if (error) {
-        console.error("Error deleting ostreljena zivotinja:", error);
-        return res.status(500).send({ error: true, message: "Problem pri brisanju ostreljene životinje.", detailedError: error.sqlMessage });
-      }
-      if (results.affectedRows === 0) {
-        res.status(404).send({ error: true, message: "Ostreljena životinja nije pronađena." });
-      } else {
-        res.send({ error: false, data: results, message: "Ostreljena životinja je obrisana." });
-      }
+  if (!sifra_odstrijela) {
+    return res.status(400).send({
+      error: true,
+      message: "No culling ID provided."
+    });
+  }
+
+  const query = `
+        DELETE FROM Popis_ostrjelene_zivotinje 
+        WHERE sifra_odstrijela = ?
+    `;
+
+  connection.query(query, [sifra_odstrijela], function (error, results) {
+    if (error) {
+      console.error("Error deleting the culled animal:", error);
+      return res.status(500).send({
+        error: true,
+        message: "Failed to delete the culled animal.",
+        detailedError: error.sqlMessage
+      });
     }
-  );
+
+    if (results.affectedRows === 0) {
+      return res.status(404).send({
+        error: true,
+        message: "No culled animal found with the provided ID."
+      });
+    }
+
+    res.send({
+      error: false,
+      message: "Culled animal deleted successfully.",
+      deletedRows: results.affectedRows
+    });
+  });
 });
+
 
 
 
@@ -395,9 +433,7 @@ app.delete("/obrisi-ostreljenu-zivotinju/:sifra", function (req, res) {
 
 app.post("/unos-osobe-u-lov", function (req, res) {
   const { broj_lovacke_iskaznice } = req.body;
-  const today = new Date().toISOString().slice(0, 10); // Format today's date as YYYY-MM-DD
-
-  // First, find the activity ID with today's date
+  const today = new Date().toISOString().slice(0, 10); 
   connection.query(
     "SELECT sifra_aktivnosti FROM `Popis_aktivnosti` WHERE datum_aktivnosti = ?",
     [today],
@@ -407,14 +443,12 @@ app.post("/unos-osobe-u-lov", function (req, res) {
         return res.status(500).send({ error: true, message: "Problem pri dohvaćanju šifre aktivnosti.", detailedError: err.message });
       }
 
-      // Check if an activity exists for today
       if (activityResults.length === 0) {
         return res.status(404).send({ error: true, message: "Nema definirane aktivnosti za današnji datum." });
       }
 
       const sifra_aktivnosti = activityResults[0].sifra_aktivnosti;
 
-      // Next, check the total points of the hunter.
       connection.query(
         "SELECT SUM(broj_bodova) AS total_points FROM `Bodovi` WHERE broj_lovacke_iskaznice = ?",
         [broj_lovacke_iskaznice],
@@ -424,9 +458,7 @@ app.post("/unos-osobe-u-lov", function (req, res) {
             return res.status(500).send({ error: true, message: "Problem pri izračunu ukupnih bodova.", detailedError: err.message });
           }
 
-          // Check if total points are 10 or more.
           if (results[0].total_points >= 10) {
-            // If the hunter has sufficient points, proceed to insert with the sifra_aktivnosti.
             connection.query(
               "INSERT INTO `Popis_osoba_u_lovu` (`broj_lovacke_iskaznice`, `sifra_aktivnosti`) VALUES (?, ?)",
               [broj_lovacke_iskaznice, sifra_aktivnosti],
@@ -439,7 +471,6 @@ app.post("/unos-osobe-u-lov", function (req, res) {
               }
             );
           } else {
-            // If the hunter does not have sufficient points, send a failure response.
             res.status(400).send({ error: true, message: "Lovac nema dovoljno bodova (10 ili više)." });
           }
         }

@@ -56,7 +56,6 @@ function PopisBodova() {
                 }
             };
 
-            // Correct the URL to match the server's endpoint
             axios.delete(`http://localhost:3000/obrisi-bodove/${sifra_dodijeljenog_boda}`, config)
                 .then(response => {
                     if (response.data.error) {
@@ -121,34 +120,20 @@ function PopisBodova() {
                 <table style={tableStyle}>
                     <thead style={thTdStyle}>
                         <tr>
-                            <th>Šifra dodijeljenog boda</th>
                             <th>Broj bodova</th>
                             <th>Opis</th>
-                            <th>Broj iskaznice</th>
                             <th>Ime</th>
                             <th>Prezime</th>
-                            <th>Adresa</th>
-                            <th>Datum rođenja</th>
-                            <th>Kontakt</th>
-                            <th>Korisničko ime</th>
-                            <th>Uloga</th>
                             <th>Akcije</th>
                         </tr>
                     </thead>
                     <tbody>
                         {bodovi.map((bod) => (
                             <tr key={bod.sifra_dodijeljenog_boda} style={{ ':hover': { backgroundColor: '#f9f9f9' } }}>
-                                <td>{bod.sifra_dodijeljenog_boda}</td>
                                 <td>{bod.broj_bodova}</td>
                                 <td>{bod.opis_dodijeljenog_boda}</td>
-                                <td>{bod.broj_lovacke_iskaznice}</td>
                                 <td>{bod.ime}</td>
                                 <td>{bod.prezime}</td>
-                                <td>{bod.adresa}</td>
-                                <td>{bod.datum_rodjenja}</td>
-                                <td>{bod.kontakt}</td>
-                                <td>{bod.korisnicko_ime}</td>
-                                <td>{bod.uloga}</td>
                                 <td>
                                     <button onClick={() => navigate('/a-bodovi', { state: { bodovi: bod } })} style={buttonStyle}>
                                         Ažuriraj

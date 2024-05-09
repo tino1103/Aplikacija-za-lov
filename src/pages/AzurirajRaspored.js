@@ -15,15 +15,14 @@ function AAktivnost() {
     });
 
     useEffect(() => {
-        // Check if location state exists and has activity data
         if (location.state && location.state.aktiv) {
             setAktivnost(location.state.aktiv);
         }
     }, [location.state]);
 
     const handleSubmit = async (event) => {
-        event.preventDefault(); // Prevent the form from submitting the default way
-        const { sifra_aktivnosti, ...updateData } = aktivnost; // Destructure to separate the ID from other data
+        event.preventDefault(); 
+        const { sifra_aktivnosti, ...updateData } = aktivnost; 
 
         try {
             const response = await axios.put(`http://localhost:3000/azuriraj-aktivnost/${aktivnost.sifra_aktivnosti}`, updateData);

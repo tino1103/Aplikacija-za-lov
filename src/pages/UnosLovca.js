@@ -11,7 +11,7 @@ function DataEntryForm() {
     const [korisnickoIme, setKorisnickoIme] = useState('');
     const [lozinka, setLozinka] = useState('');
     const [message, setMessage] = useState('');
-    const [uloga, setUloga] = useState('korisnik'); // Default role
+    const [uloga, setUloga] = useState('korisnik'); 
     const navigate = useNavigate();
 
     const handleSubmit = (event) => {
@@ -27,10 +27,8 @@ function DataEntryForm() {
             uloga
         };
 
-        // Retrieve the token from local storage
         const token = localStorage.getItem('token');
 
-        // Set up the configuration for the axios request including the Authorization header
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -153,7 +151,7 @@ function DataEntryForm() {
                 <div>
                     <label style={labelStyle}>Lozinka:</label>
                     <input
-                        type="text"  // Changed to password type for security
+                        type="text"  
                         value={lozinka}
                         onChange={(e) => setLozinka(e.target.value)}
                         required

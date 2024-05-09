@@ -12,7 +12,6 @@ function ABodovi() {
     });
 
     useEffect(() => {
-        // Check if location state exists and has bod data
         if (location.state && location.state.bodovi) {
             setBod({
                 sifra_dodijeljenog_boda: location.state.bodovi.sifra_dodijeljenog_boda,

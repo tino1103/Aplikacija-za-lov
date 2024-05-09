@@ -8,27 +8,26 @@ function PopisLovaca() {
         padding: '20px 50px',
         fontSize: '12px',
         color: 'white',
-        backgroundColor: '#007BFF', // Standardize background color
+        backgroundColor: '#007BFF', 
         border: 'none',
         borderRadius: '5px',
         cursor: 'pointer',
-        margin: '0 10px', // Add margin to create space between buttons
+        margin: '0 10px', 
     };
 
-    // Define a function to handle logout
     const handleLogout = () => {
-        localStorage.clear();  // Clear all data stored in local storage
-        navigate('/pocetna');  // Navigate to login page after clearing local storage
+        localStorage.clear();  
+        navigate('/pocetna');  
     };
 
     return (
         <div style={{
             padding: '20px',
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, auto)', // Two buttons per row
+            gridTemplateColumns: 'repeat(2, auto)', 
             justifyContent: 'center',
             alignItems: 'center',
-            gridGap: '10px', // Spacing between rows and columns
+            gridGap: '10px', 
             height: '100vh',
             backgroundColor: '#eee'
         }}>
@@ -54,9 +53,7 @@ function PopisLovaca() {
             <button onClick={() => navigate('/qr')} style={buttonStyle}>
                 Qr
             </button>
-            <button onClick={() => navigate('/skeniranje-koda')} style={buttonStyle}>
-                Skeniranje koda
-            </button>
+        
             <button onClick={handleLogout} style={{ ...buttonStyle, backgroundColor: '#FF6347' }}>
                 Odjava
             </button>

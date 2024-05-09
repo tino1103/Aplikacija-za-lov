@@ -21,7 +21,7 @@ function LoginForm() {
             const response = await axios.post("http://localhost:3000/prijavi", {
                 korisnicko_ime: korisnickoIme,
                 lozinka: lozinka,
-                recaptcha: captchaValue // Assuming backend expects recaptcha response
+                recaptcha: captchaValue 
             });
 
             if (response.data.success) {
@@ -97,7 +97,7 @@ function LoginForm() {
                     />
                 </div>
                 <ReCAPTCHA
-                    sitekey="6LckwNApAAAAAF08JaAvD8sSdwdkV1LTquS2CtHU" // Replace YOUR_SITE_KEY with your actual site key
+                    sitekey="6LckwNApAAAAAF08JaAvD8sSdwdkV1LTquS2CtHU" 
                     onChange={onCaptchaChange}
                 />
                 <button type="submit" style={buttonStyle}>Prijavi</button>

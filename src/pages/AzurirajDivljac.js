@@ -7,7 +7,6 @@ function AZivotinja() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Initialize state with the structure for an animal
     const [zivotinja, setZivotinja] = useState({
         sifra_zivotinje: '',
         vrsta_zivotinje: '',
@@ -15,15 +14,14 @@ function AZivotinja() {
     });
 
     useEffect(() => {
-        // Check if location state exists and has animal data
         if (location.state && location.state.zivot) {
             setZivotinja(location.state.zivot);
         }
     }, [location.state]);
 
     const handleSubmit = async (event) => {
-        event.preventDefault(); // Prevent the form from submitting the default way
-        const { sifra_zivotinje, ...updateData } = zivotinja; // Destructure to separate the ID from other data
+        event.preventDefault(); 
+        const { sifra_zivotinje, ...updateData } = zivotinja; 
 
         try {
             const response = await axios.put(`http://localhost:3000/azuriraj-zivotinju/${zivotinja.sifra_zivotinje}`, updateData);

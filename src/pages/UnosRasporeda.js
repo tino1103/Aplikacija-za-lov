@@ -19,10 +19,8 @@ function DataEntryForm() {
             opis_aktivnosti: opisAktivnosti
         };
 
-        // Retrieve the token from local storage
         const token = localStorage.getItem('token');
 
-        // Set up the configuration for the axios request including the Authorization header
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -40,7 +38,6 @@ function DataEntryForm() {
             });
     };
 
-    // Styles
     const formStyle = {
         display: 'flex',
         flexDirection: 'column',
@@ -116,7 +113,7 @@ function DataEntryForm() {
                         value={opisAktivnosti}
                         onChange={(e) => setOpisAktivnosti(e.target.value)}
                         required
-                        style={{ ...inputStyle, height: '100px' }}  // Adjusted to accommodate longer text
+                        style={{ ...inputStyle, height: '100px' }}  
                     />
                 </div>
                 <button type="submit" style={buttonStyle}>Unesi</button>

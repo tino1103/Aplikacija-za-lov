@@ -13,10 +13,8 @@ function DataEntryForm() {
             broj_lovacke_iskaznice: brojLovackeIskaznice
         };
 
-        // Retrieve the token from local storage
         const token = localStorage.getItem('token');
 
-        // Set up the configuration for the axios request including the Authorization header
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -26,7 +24,7 @@ function DataEntryForm() {
         axios.post('http://localhost:3000/unos-osobe-u-lov', userData, config)
             .then(response => {
                 alert('Osoba je dodana u prisutnost.');
-                navigate("/popis-prisutnosti");  // Assuming this is the route to list people in hunting
+                navigate("/popis-prisutnosti");  
             })
             .catch(error => {
                 console.error('There was an error!', error);
@@ -34,7 +32,6 @@ function DataEntryForm() {
             });
     };
 
-    // Styles remain the same
     const formStyle = {
         display: 'flex',
         flexDirection: 'column',

@@ -19,15 +19,14 @@ function ALovac() {
     });
 
     useEffect(() => {
-        // Check if location state exists and has lov data
         if (location.state && location.state.lov) {
             setLovac(location.state.lov);
         }
     }, [location.state]);
 
     const handleSubmit = async (event) => {
-        event.preventDefault(); // Prevent the form from submitting the default way
-        const { broj_lovacke_iskaznice, ...updateData } = lovac; // Destructure to separate the ID from other data
+        event.preventDefault(); 
+        const { broj_lovacke_iskaznice, ...updateData } = lovac; 
 
         try {
             const response = await axios.put(`http://localhost:3000/azuriraj-lovca/${lovac.broj_lovacke_iskaznice}`, updateData);

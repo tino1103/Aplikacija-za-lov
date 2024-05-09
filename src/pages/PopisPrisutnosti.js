@@ -119,7 +119,6 @@ function PopisLovacaULovu() {
                 <table style={tableStyle}>
                     <thead style={thTdStyle}>
                         <tr>
-                            <th>Šifra Lova</th>
                             <th>Ime</th>
                             <th>Prezime</th>
                             <th>Datum Aktivnosti</th>
@@ -129,7 +128,6 @@ function PopisLovacaULovu() {
                     <tbody>
                         {lovci.map((lovac) => (
                             <tr key={lovac.sifra_lova} style={{ ':hover': { backgroundColor: '#f9f9f9' } }}>
-                                <td>{lovac.sifra_lova}</td>
                                 <td>{lovac.ime}</td>
                                 <td>{lovac.prezime}</td>
                                 <td>{lovac.datum_aktivnosti}</td>

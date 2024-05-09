@@ -15,10 +15,8 @@ function DataEntryForm() {
             opis_zivotinje: opisZivotinje
         };
 
-        // Retrieve the token from local storage
         const token = localStorage.getItem('token');
 
-        // Set up the configuration for the axios request including the Authorization header
         const config = {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -36,7 +34,6 @@ function DataEntryForm() {
             });
     };
 
-    // Styles
     const formStyle = {
         display: 'flex',
         flexDirection: 'column',

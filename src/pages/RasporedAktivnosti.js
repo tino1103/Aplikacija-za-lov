@@ -13,11 +13,11 @@ function formatDate(dateString) {
     if (month.length < 2)
         month = '0' + month;
 
-    return [day, month, year].join('/'); // Changed to YYYY-MM-DD format for date display
+    return [day, month, year].join('/');
 }
 
 function formatTime(timeString) {
-    return timeString.substr(0, 5); // Trims time string to HH:MM format
+    return timeString.substr(0, 5); 
 }
 
 function PopisAktivnosti() {
@@ -124,7 +124,6 @@ function PopisAktivnosti() {
                 <table style={tableStyle}>
                     <thead style={thTdStyle}>
                         <tr>
-                            <th>Šifra aktivnosti</th>
                             <th>Naziv aktivnosti</th>
                             <th>Datum aktivnosti</th>
                             <th>Vrijeme aktivnosti</th>
@@ -135,7 +134,6 @@ function PopisAktivnosti() {
                     <tbody>
                         {aktivnosti.map((aktivnost) => (
                             <tr key={aktivnost.sifra_aktivnosti} style={{ ':hover': { backgroundColor: '#f9f9f9' } }}>
-                                <td>{aktivnost.sifra_aktivnosti}</td>
                                 <td>{aktivnost.naziv_aktivnosti}</td>
                                 <td>{aktivnost.datum_aktivnosti}</td>
                                 <td>{aktivnost.vrijeme_aktivnosti}</td>

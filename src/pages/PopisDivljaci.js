@@ -101,7 +101,6 @@ function PopisZivotinja() {
                 <table style={tableStyle}>
                     <thead style={thTdStyle}>
                         <tr>
-                            <th>Šifra</th>
                             <th>Vrsta</th>
                             <th>Opis</th>
                             <th>Akcije</th>
@@ -110,7 +109,6 @@ function PopisZivotinja() {
                     <tbody>
                         {zivotinje.map((zivotinja) => (
                             <tr key={zivotinja.sifra_zivotinje} style={{ ':hover': { backgroundColor: '#f9f9f9' } }}>
-                                <td>{zivotinja.sifra_zivotinje}</td>
                                 <td>{zivotinja.vrsta_zivotinje}</td>
                                 <td>{zivotinja.opis_zivotinje}</td>
                                 <td>
