@@ -96,7 +96,7 @@ function DataEntryForm() {
         axios.post('http://localhost:3000/unos-ostrjelene-zivotinje', culledAnimalData, config)
             .then(() => {
                 alert('Ostrjelena životinja je dodana.');
-                navigate('/popis-ostrjela');
+                navigate('/korisnik-popis-ostrjela');
             })
             .catch((error) => {
                 console.error('There was an error!', error);

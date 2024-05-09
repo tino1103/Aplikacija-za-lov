@@ -116,9 +116,7 @@ function PopisAktivnosti() {
 
     return (
         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <button onClick={() => navigate('/unos-rasporeda')} style={buttonStyle}>
-                Unesi aktivnost
-            </button>
+           
             <div>
                 <h1>Popis Aktivnosti</h1>
                 <table style={tableStyle}>

@@ -37,39 +37,57 @@ import UnosPrisutnosti from './pages/UnosLuLov.js';
 
 
 
-function App() {
-  const PopisLovacaProtected = withAdminProtection(PopisLovaca); 
+const PopisLovacaProtected = withAdminProtection(PopisLovaca);
+const PopisDivljaciProtected = withAdminProtection(PopisDivljaci);
+const PopisBodovaProtected = withAdminProtection(PopisBodova);
+const PopisPrisutnostiProtected = withAdminProtection(Prisutnost);
+const PopisOstrjelaProtected = withAdminProtection(PopisOstrjela);
+const RasporedAktivnostiProtected = withAdminProtection(RasporedAktivnosti);
+const UnosBodovaProtected = withAdminProtection(UnosBodova);
+const UnosDivljaciProtected = withAdminProtection(UnosDivljaci);
+const UnosLovcaProtected = withAdminProtection(UnosLovca);
+const UnosOstrjelaProtected = withAdminProtection(UnosOstrjela);
+const UnosPrisutnostiProtected = withAdminProtection(UnosPrisutnosti);
+const UnosRasporedaProtected = withAdminProtection(UnosRasporeda);
+const GlavniIzbornikProtected = withAdminProtection(GlavniIzbornik);
+const QrKodProtected = withAdminProtection(QrKod);
+const SkeniranjeKodaProtected = withAdminProtection(SkeniranjeKoda);
+const UpLovacProtected = withAdminProtection(UpLovac);
+const UpDivljaciProtected = withAdminProtection(UpDivljaci);
+const UpBodProtected = withAdminProtection(UpBod);
+const UpRasporedProtected = withAdminProtection(UpRaspored);
 
+function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/popis-bodova" element={<PopisBodova />} />
-        <Route path="/popis-divljaci" element={<PopisDivljaci />} />
-        <Route path="/popis-prisutnosti" element={<Prisutnost />} />
-        <Route path="/popis-lovaca" element={<PopisLovacaProtected />} /> 
-        <Route path="/popis-ostrjela" element={<PopisOstrjela />} />
+        <Route path="/popis-bodova" element={<PopisBodovaProtected />} />
+        <Route path="/popis-divljaci" element={<PopisDivljaciProtected />} />
+        <Route path="/popis-prisutnosti" element={<PopisPrisutnostiProtected />} />
+        <Route path="/popis-lovaca" element={<PopisLovacaProtected />} />
+        <Route path="/popis-ostrjela" element={<PopisOstrjelaProtected />} />
         <Route path="/korisnik-popis-ostrjela" element={<KorisnikPopisOstrjela />} />
-        <Route path="/raspored-aktivnosti" element={<RasporedAktivnosti />} />
+        <Route path="/raspored-aktivnosti" element={<RasporedAktivnostiProtected />} />
         <Route path="/korisnik-raspored-aktivnosti" element={<KorisnikRasporedAktivnosti />} />
-        <Route path="/unos-bodova" element={<UnosBodova />} />
-        <Route path="/unos-divljaci" element={<UnosDivljaci />} />
-        <Route path="/unos-lovca" element={<UnosLovca />} />
-        <Route path="/unos-ostrjela" element={<UnosOstrjela />} />
+        <Route path="/unos-bodova" element={<UnosBodovaProtected />} />
+        <Route path="/unos-divljaci" element={<UnosDivljaciProtected />} />
+        <Route path="/unos-lovca" element={<UnosLovcaProtected />} />
+        <Route path="/unos-ostrjela" element={<UnosOstrjelaProtected />} />
         <Route path="/korisnik-unos-ostrjela" element={<KorisnikUO />} />
-        <Route path="/unos-prisutnosti" element={<UnosPrisutnosti />} />
-        <Route path="/unos-rasporeda" element={<UnosRasporeda />} />
-        <Route path="/glavni-izbornik" element={<GlavniIzbornik />} />
+        <Route path="/unos-prisutnosti" element={<UnosPrisutnostiProtected />} />
+        <Route path="/unos-rasporeda" element={<UnosRasporedaProtected />} />
+        <Route path="/glavni-izbornik" element={<GlavniIzbornikProtected />} />
         <Route path="/prijava-lovac" element={<PrijvaLovac />} />
         <Route path="/pocetna" element={<PocetnaStranica />} />
         <Route path="/izbornik-lovac" element={<IzLovac />} />
-        <Route path="/a-lovac" element={<UpLovac />} />
-        <Route path="/a-divljac" element={<UpDivljaci />} />
-        <Route path="/a-raspored" element={<UpRaspored />} />
-        <Route path="/a-bodovi" element={<UpBod />} />
+        <Route path="/a-lovac" element={<UpLovacProtected />} />
+        <Route path="/a-divljac" element={<UpDivljaciProtected />} />
+        <Route path="/a-raspored" element={<UpRasporedProtected />} />
+        <Route path="/a-bodovi" element={<UpBodProtected />} />
         <Route path="/qr-korisnik" element={<QrKodKorisnik />} />
-        <Route path="/qr" element={<QrKod />} />
-        <Route path="/skeniranje-koda" element={<SkeniranjeKoda />} />
+        <Route path="/qr" element={<QrKodProtected />} />
+        <Route path="/skeniranje-koda" element={<SkeniranjeKodaProtected />} />
         <Route path="*" element={<Navigate to="/pocetna" replace />} />
       </Routes>
     </Router>

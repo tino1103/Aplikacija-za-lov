@@ -64,7 +64,7 @@ app.post("/unos-lovca", authJwt.verifyToken("admin"), function (req, res) {
   });
 });
 
-app.get("/popis-lovaca", function (req, res) {
+app.get("/popis-lovaca",authJwt.verifyToken("admin"), function (req, res) {
   connection.query(
     "SELECT `broj_lovacke_iskaznice`, `ime`, `prezime`, `adresa`, `datum_rodjenja`, `kontakt`, `korisnicko_ime`, `uloga` FROM `Lovac`",
     function (error, results, fields) {
@@ -79,7 +79,7 @@ app.get("/popis-lovaca", function (req, res) {
 
 
 
-app.put("/azuriraj-lovca/:broj_lovacke_iskaznice", function (req, res) {
+app.put("/azuriraj-lovca/:broj_lovacke_iskaznice",authJwt.verifyToken("admin"), function (req, res) {
   const { broj_lovacke_iskaznice } = req.params;
   const { ime, prezime, adresa, datum_rodjenja, kontakt, korisnicko_ime, uloga } = req.body;
 
@@ -102,7 +102,7 @@ app.put("/azuriraj-lovca/:broj_lovacke_iskaznice", function (req, res) {
 
 
 
-app.delete('/lovac-brisi/:broj_lovacke_iskaznice', (req, res) => {
+app.delete('/lovac-brisi/:broj_lovacke_iskaznice',authJwt.verifyToken("admin"), (req, res) => {
   const { broj_lovacke_iskaznice } = req.params;
 
   connection.query(
@@ -144,7 +144,7 @@ app.post("/unos-aktivnosti", authJwt.verifyToken("admin"), function (req, res) {
 
 
 
-app.get("/popis-aktivnosti", function (req, res) {
+app.get("/popis-aktivnosti",authJwt.verifyToken("admin, korisnik"), function (req, res) {
   connection.query(
     "SELECT `sifra_aktivnosti`, `naziv_aktivnosti`, `datum_aktivnosti`, `vrijeme_aktivnosti`, `opis_aktivnosti` FROM `Popis_aktivnosti`",
     function (error, results, fields) {
@@ -180,7 +180,7 @@ app.put("/azuriraj-aktivnost/:sifra_aktivnosti", function (req, res) {
 
 
 
-app.delete('/obrisi-aktivnost/:sifra_aktivnosti', (req, res) => {
+app.delete('/obrisi-aktivnost/:sifra_aktivnosti',authJwt.verifyToken("admin"), (req, res) => {
   const { sifra_aktivnosti } = req.params;
 
   connection.query(
@@ -206,7 +206,7 @@ app.delete('/obrisi-aktivnost/:sifra_aktivnosti', (req, res) => {
 
 
 
-app.post("/unos-bodova", function (req, res) {
+app.post("/unos-bodova",authJwt.verifyToken("admin"), function (req, res) {
   const { broj_lovacke_iskaznice, broj_bodova, opis_dodijeljenog_boda } = req.body;
 
   if (!broj_lovacke_iskaznice) {
@@ -228,7 +228,7 @@ app.post("/unos-bodova", function (req, res) {
 
 
 
-app.get("/popis-bodova", function (req, res) {
+app.get("/popis-bodova",authJwt.verifyToken("admin"), function (req, res) {
   connection.query(
     `SELECT b.sifra_dodijeljenog_boda, b.broj_bodova, b.opis_dodijeljenog_boda, l.broj_lovacke_iskaznice, l.ime, l.prezime, l.adresa, l.datum_rodjenja, l.kontakt, l.korisnicko_ime, l.uloga 
         FROM Bodovi b 
@@ -244,7 +244,7 @@ app.get("/popis-bodova", function (req, res) {
 });
 
 
-app.put("/azuriraj-bodove/:sifra_dodijeljenog_boda", function (req, res) {
+app.put("/azuriraj-bodove/:sifra_dodijeljenog_boda",authJwt.verifyToken("admin"), function (req, res) {
   const { sifra_dodijeljenog_boda } = req.params;
   const { broj_bodova, opis_dodijeljenog_boda } = req.body;
 
@@ -266,7 +266,7 @@ app.put("/azuriraj-bodove/:sifra_dodijeljenog_boda", function (req, res) {
 });
 
 
-app.delete("/obrisi-bodove/:sifra_dodijeljenog_boda", function (req, res) {
+app.delete("/obrisi-bodove/:sifra_dodijeljenog_boda",authJwt.verifyToken("admin"), function (req, res) {
   const { sifra_dodijeljenog_boda } = req.params;
 
   connection.query(
@@ -292,7 +292,7 @@ app.delete("/obrisi-bodove/:sifra_dodijeljenog_boda", function (req, res) {
 
 
 
-app.post("/unos-ostrjelene-zivotinje", function (req, res) {
+app.post("/unos-ostrjelene-zivotinje",authJwt.verifyToken("admin, korisnik"), function (req, res) {
   const { broj_lovacke_iskaznice, sifra_zivotinje, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela } = req.body;
 
   connection.query(
@@ -309,7 +309,7 @@ app.post("/unos-ostrjelene-zivotinje", function (req, res) {
 });
 
 
-app.get("/vrste-zivotinja", function (req, res) {
+app.get("/vrste-zivotinja",  function (req, res) {
   connection.query(
     "SELECT sifra_zivotinje, vrsta_zivotinje FROM Zivotinja",
     function (error, results) {
@@ -327,7 +327,7 @@ app.get("/vrste-zivotinja", function (req, res) {
 
 
 
-app.get("/popis-ostreljene-zivotinje", function (req, res) {
+app.get("/popis-ostreljene-zivotinje",authJwt.verifyToken("admin,korisnik"), function (req, res) {
   const query = `
     SELECT 
       po.sifra_odstrijela,
@@ -364,7 +364,7 @@ app.get("/popis-ostreljene-zivotinje", function (req, res) {
 });
 
 
-app.put("/azuriraj-ostreljenu-zivotinju/:sifra", function (req, res) {
+app.put("/azuriraj-ostreljenu-zivotinju/:sifra",authJwt.verifyToken("admin"), function (req, res) {
   const { sifra } = req.params;
   const { sifra_lova, vrijeme_odstrela, datum_odstrela, lokacija_odstrela } = req.body;
 
@@ -386,7 +386,7 @@ app.put("/azuriraj-ostreljenu-zivotinju/:sifra", function (req, res) {
 });
 
 
-app.delete("/brisi-odstrijel/:sifra_odstrijela", function (req, res) {
+app.delete("/brisi-odstrijel/:sifra_odstrijela",authJwt.verifyToken("admin"), function (req, res) {
   const { sifra_odstrijela } = req.params;
 
   if (!sifra_odstrijela) {
@@ -431,7 +431,7 @@ app.delete("/brisi-odstrijel/:sifra_odstrijela", function (req, res) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-app.post("/unos-osobe-u-lov", function (req, res) {
+app.post("/unos-osobe-u-lov",authJwt.verifyToken("admin"), function (req, res) {
   const { broj_lovacke_iskaznice } = req.body;
   const today = new Date().toISOString().slice(0, 10); 
   connection.query(
@@ -483,7 +483,7 @@ app.post("/unos-osobe-u-lov", function (req, res) {
 
 
 
-app.get("/popis-lovaca-u-lovu", function (req, res) {
+app.get("/popis-lovaca-u-lovu",authJwt.verifyToken("admin"), function (req, res) {
   connection.query(
     `SELECT plu.sifra_lova, l.ime, l.prezime, pa.datum_aktivnosti 
      FROM Popis_osoba_u_lovu plu
@@ -502,7 +502,7 @@ app.get("/popis-lovaca-u-lovu", function (req, res) {
 
 
 
-app.delete('/popis-brisi/:sifra_lova', (req, res) => {
+app.delete('/popis-brisi/:sifra_lova',authJwt.verifyToken("admin"), (req, res) => {
   const { sifra_lova } = req.params;
 
   connection.query(
@@ -526,7 +526,7 @@ app.delete('/popis-brisi/:sifra_lova', (req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////
 
-app.post("/unos-zivotinje", function (req, res) {
+app.post("/unos-zivotinje",authJwt.verifyToken("admin"), function (req, res) {
   const { vrsta_zivotinje, opis_zivotinje } = req.body;
 
   connection.query(
@@ -543,7 +543,7 @@ app.post("/unos-zivotinje", function (req, res) {
 });
 
 
-app.get("/popis-zivotinja", function (req, res) {
+app.get("/popis-zivotinja",authJwt.verifyToken("admin"), function (req, res) {
   connection.query(
     "SELECT `sifra_zivotinje`, `vrsta_zivotinje`, `opis_zivotinje` FROM `Zivotinja`",
     function (error, results, fields) {
@@ -578,7 +578,7 @@ app.put("/azuriraj-zivotinju/:sifra_zivotinje", function (req, res) {
 });
 
 
-app.delete('/brisi-zivotinju/:sifra_zivotinje', (req, res) => {
+app.delete('/brisi-zivotinju/:sifra_zivotinje',authJwt.verifyToken("admin"), (req, res) => {
   const { sifra_zivotinje } = req.params;
 
   connection.query(
