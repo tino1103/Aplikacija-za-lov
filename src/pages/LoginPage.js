@@ -18,7 +18,7 @@ function LoginForm() {
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/prijavi", {
+            const response = await axios.post("https://c1ea478869cf.ngrok.app/prijavi", {
                 korisnicko_ime: korisnickoIme,
                 lozinka: lozinka,
                 recaptcha: captchaValue 

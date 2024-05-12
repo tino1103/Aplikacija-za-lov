@@ -28,7 +28,6 @@ import UpRaspored from './pages/AzurirajRaspored.js';
 import withAdminProtection from './withAdminProtection';  
 import QrKod from './pages/QRCodeDisplay.js';
 import QrKodKorisnik from './pages/KorisnikQr.js';
-import SkeniranjeKoda from './pages/SkeniranjeKoda.js';
 import UnosPrisutnosti from './pages/UnosLuLov.js';
 
 
@@ -51,7 +50,6 @@ const UnosPrisutnostiProtected = withAdminProtection(UnosPrisutnosti);
 const UnosRasporedaProtected = withAdminProtection(UnosRasporeda);
 const GlavniIzbornikProtected = withAdminProtection(GlavniIzbornik);
 const QrKodProtected = withAdminProtection(QrKod);
-const SkeniranjeKodaProtected = withAdminProtection(SkeniranjeKoda);
 const UpLovacProtected = withAdminProtection(UpLovac);
 const UpDivljaciProtected = withAdminProtection(UpDivljaci);
 const UpBodProtected = withAdminProtection(UpBod);
@@ -87,7 +85,6 @@ function App() {
         <Route path="/a-bodovi" element={<UpBodProtected />} />
         <Route path="/qr-korisnik" element={<QrKodKorisnik />} />
         <Route path="/qr" element={<QrKodProtected />} />
-        <Route path="/skeniranje-koda" element={<SkeniranjeKodaProtected />} />
         <Route path="*" element={<Navigate to="/pocetna" replace />} />
       </Routes>
     </Router>

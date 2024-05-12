@@ -28,7 +28,7 @@ function PopisLovacaULovu() {
             }
         };
 
-        axios.get('http://localhost:3000/popis-lovaca-u-lovu', config)
+        axios.get('https://c1ea478869cf.ngrok.app/popis-lovaca-u-lovu', config)
             .then(response => {
                 if (response.data.error) {
                     console.error('Failed to fetch hunters:', response.data.message);
@@ -56,7 +56,7 @@ function PopisLovacaULovu() {
                 }
             };
 
-            axios.delete(`http://localhost:3000/popis-brisi/${sifra_lova}`, config)
+            axios.delete(`https://c1ea478869cf.ngrok.app/popis-brisi/${sifra_lova}`, config)
                 .then(response => {
                     if (response.data.error) {
                         console.error('Error deleting entry:', response.data.message);
