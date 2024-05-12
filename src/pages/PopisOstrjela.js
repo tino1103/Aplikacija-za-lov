@@ -14,7 +14,7 @@ function PopisOstreljeneDivljaci() {
             }
         };
 
-        axios.get('http://localhost:3000/popis-ostreljene-zivotinje', config)
+        axios.get('https://c1ea478869cf.ngrok.app/popis-ostreljene-zivotinje', config)
             .then(response => {
                 if (response.data.error) {
                     console.error('Failed to fetch culled animals:', response.data.message);
@@ -22,7 +22,7 @@ function PopisOstreljeneDivljaci() {
                 } else {
                     const formattedData = response.data.data.map(item => ({
                         ...item,
-                        datum_odstrijela: formatDate(item.datum_odstrijela) 
+                        datum_odstrijela: formatDate(item.datum_odstrijela)
                     }));
                     setOstreljeneDivljaci(formattedData);
                 }
@@ -37,7 +37,7 @@ function PopisOstreljeneDivljaci() {
         return [
             ('0' + date.getDate()).slice(-2),
             ('0' + (date.getMonth() + 1)).slice(-2),
-            date.getFullYear(),
+            date.getFullYear()
         ].join('/');
     }
 
@@ -51,7 +51,7 @@ function PopisOstreljeneDivljaci() {
                 }
             };
 
-            axios.delete(`http://localhost:3000/brisi-odstrijel/${sifra_odstrijela}`, config)
+            axios.delete(`https://c1ea478869cf.ngrok.app/brisi-odstrijel/${sifra_odstrijela}`, config)
                 .then(response => {
                     if (response.data.error) {
                         console.error('Error deleting culled animal:', response.data.message);
@@ -116,6 +116,7 @@ function PopisOstreljeneDivljaci() {
                         <th>Datum Odstrijela</th>
                         <th>Vrijeme Odstrijela</th>
                         <th>Lokacija Odstrijela</th>
+                        <th>Slika</th>
                         <th>Akcije</th>
                     </tr>
                 </thead>
@@ -129,13 +130,24 @@ function PopisOstreljeneDivljaci() {
                             <td>{divljac.vrijeme_odstrijela}</td>
                             <td>{divljac.lokacija_odstrijela}</td>
                             <td>
+                                {divljac.slika ? (
+                                    <img
+                                        src={divljac.slika}
+                                        alt="Slika odstrjelene divljači"
+                                        style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '5px' }}
+                                    />
+                                ) : (
+                                    'Nema slike'
+                                )}
+                            </td>
+                            <td>
                                 <button onClick={() => handleDelete(divljac.sifra_odstrijela)} style={deleteButtonStyle}>Obriši</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <br></br>
+            <br />
             <button onClick={() => navigate('/glavni-izbornik')} style={buttonStyle}>
                 Odustani
             </button>

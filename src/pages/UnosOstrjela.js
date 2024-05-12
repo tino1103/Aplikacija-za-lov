@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -20,8 +19,10 @@ function DataEntryForm() {
     const [sifraZivotinje, setSifraZivotinje] = useState('');
     const [koordinate, setKoordinate] = useState({ latitude: 0, longitude: 0 });
     const [message, setMessage] = useState('');
-    const navigate = useNavigate();
     const [mapInitialized, setMapInitialized] = useState(false);
+    const [slika, setSlika] = useState('');
+    const videoRef = useRef(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -39,7 +40,7 @@ function DataEntryForm() {
     }, []);
 
     useEffect(() => {
-        axios.get('http://localhost:3000/vrste-zivotinja')
+        axios.get('https://c1ea478869cf.ngrok.app/vrste-zivotinja')
             .then((response) => {
                 setAnimalTypes(response.data.data);
             })
@@ -65,6 +66,37 @@ function DataEntryForm() {
         }
     }, []);
 
+    useEffect(() => {
+        // Cleanup function to stop the camera when the component unmounts
+        return stopCamera;
+    }, []);
+
+    const stopCamera = () => {
+        const stream = videoRef.current?.srcObject;
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach((track) => track.stop());
+            videoRef.current.srcObject = null;
+        }
+    };
+
+    const handleCapture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        canvas.getContext('2d').drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg');
+        setSlika(imageData);
+
+        // Stop the camera after capturing the image
+        stopCamera();
+    };
+
+    const handleRetake = () => {
+        setSlika('');
+        startCamera(); // Restart the camera
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
 
@@ -82,7 +114,8 @@ function DataEntryForm() {
             sifra_zivotinje: sifraZivotinje,
             vrijeme_odstrijela: vrijemeOdstrijela,
             datum_odstrijela: datumOdstrijela,
-            lokacija_odstrijela: `${koordinate.latitude}, ${koordinate.longitude}`
+            lokacija_odstrijela: `${koordinate.latitude}, ${koordinate.longitude}`,
+            slika
         };
 
         const token = localStorage.getItem('token');
@@ -93,15 +126,32 @@ function DataEntryForm() {
             }
         };
 
-        axios.post('http://localhost:3000/unos-ostrjelene-zivotinje', culledAnimalData, config)
+        axios.post('https://c1ea478869cf.ngrok.app/unos-ostrjelene-zivotinje', culledAnimalData, config)
             .then(() => {
                 alert('Ostrjelena životinja je dodana.');
+                stopCamera();
                 navigate('/popis-ostrjela');
             })
             .catch((error) => {
                 console.error('There was an error!', error);
                 setMessage(`Error: ${error.message}`);
             });
+    };
+
+    const handleCancel = () => {
+        stopCamera();
+        navigate('/popis-ostrjela');
+    };
+
+    const startCamera = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' } // Rear camera
+            });
+            videoRef.current.srcObject = stream;
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+        }
     };
 
     const containerStyle = {
@@ -135,6 +185,7 @@ function DataEntryForm() {
 
     const buttonStyle = {
         padding: '10px 20px',
+        marginTop: '10px',
         fontSize: '16px',
         color: 'white',
         backgroundColor: '#007BFF',
@@ -152,6 +203,15 @@ function DataEntryForm() {
         width: '650px',
         height: '650px',
         margin: '50px'
+    };
+
+    const videoStyle = {
+        width: '300px',
+        height: '200px',
+        objectFit: 'cover',
+        backgroundColor: 'black',
+        border: '1px solid #ccc',
+        borderRadius: '8px'
     };
 
     return (
@@ -176,11 +236,23 @@ function DataEntryForm() {
                     <label style={labelStyle}>Lokacija odstrijela:</label>
                     <p>{koordinate.latitude}, {koordinate.longitude}</p>
                 </div>
+                <div>
+                    <label style={labelStyle}>Dodaj sliku:</label>
+                    {slika ? (
+                        <div>
+                            <img src={slika} alt="Captured" style={{ width: '300px', height: 'auto', borderRadius: '8px', border: '1px solid #ccc' }} />
+                            <button type="button" onClick={handleRetake} style={buttonStyle}>Ponovno snimi sliku</button>
+                        </div>
+                    ) : (
+                        <div>
+                            <video ref={videoRef} autoPlay style={videoStyle}></video>
+                            <button type="button" onClick={startCamera} style={buttonStyle}>Pokreni kameru</button>
+                            <button type="button" onClick={handleCapture} style={buttonStyle}>Usnimi sliku</button>
+                        </div>
+                    )}
+                </div>
                 <button type="submit" style={buttonStyle}>Unesi</button>
-                <br />
-                <button onClick={() => navigate('/popis-ostrjela')} style={buttonStyle}>
-                    Odustani
-                </button>
+                <button type="button" onClick={handleCancel} style={buttonStyle}>Odustani</button>
             </form>
             {mapInitialized && koordinate && (
                 <MapContainer
