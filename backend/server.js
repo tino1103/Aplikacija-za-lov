@@ -292,12 +292,12 @@ app.delete("/obrisi-bodove/:sifra_dodijeljenog_boda",authJwt.verifyToken("admin"
 
 
 
-app.post("/unos-ostrjelene-zivotinje",authJwt.verifyToken("admin, korisnik"), function (req, res) {
-  const { broj_lovacke_iskaznice, sifra_zivotinje, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela } = req.body;
+app.post("/unos-ostrjelene-zivotinje", authJwt.verifyToken("admin, korisnik"), function (req, res) {
+  const { broj_lovacke_iskaznice, sifra_zivotinje, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela, slika } = req.body;
 
   connection.query(
-    "INSERT INTO `Popis_ostrjelene_zivotinje` (`broj_lovacke_iskaznice`, `sifra_zivotinje`, `vrijeme_odstrijela`, `datum_odstrijela`, `lokacija_odstrijela`) VALUES (?, ?, ?, ?, ?)",
-    [broj_lovacke_iskaznice, sifra_zivotinje, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela],
+    "INSERT INTO `Popis_ostrjelene_zivotinje` (`broj_lovacke_iskaznice`, `sifra_zivotinje`, `vrijeme_odstrijela`, `datum_odstrijela`, `lokacija_odstrijela`, `slika`) VALUES (?, ?, ?, ?, ?, ?)",
+    [broj_lovacke_iskaznice, sifra_zivotinje, vrijeme_odstrijela, datum_odstrijela, lokacija_odstrijela, slika],
     function (error, results, fields) {
       if (error) {
         console.error("Error adding culled animal:", error);
@@ -307,6 +307,7 @@ app.post("/unos-ostrjelene-zivotinje",authJwt.verifyToken("admin, korisnik"), fu
     }
   );
 });
+
 
 
 app.get("/vrste-zivotinja",  function (req, res) {
@@ -327,7 +328,7 @@ app.get("/vrste-zivotinja",  function (req, res) {
 
 
 
-app.get("/popis-ostreljene-zivotinje",authJwt.verifyToken("admin,korisnik"), function (req, res) {
+app.get("/popis-ostreljene-zivotinje", authJwt.verifyToken("admin, korisnik"), function (req, res) {
   const query = `
     SELECT 
       po.sifra_odstrijela,
@@ -336,7 +337,8 @@ app.get("/popis-ostreljene-zivotinje",authJwt.verifyToken("admin,korisnik"), fun
       z.vrsta_zivotinje, 
       po.datum_odstrijela, 
       po.vrijeme_odstrijela, 
-      po.lokacija_odstrijela
+      po.lokacija_odstrijela, 
+      po.slika
     FROM 
       Popis_ostrjelene_zivotinje AS po
     JOIN 
@@ -362,6 +364,7 @@ app.get("/popis-ostreljene-zivotinje",authJwt.verifyToken("admin,korisnik"), fun
     });
   });
 });
+
 
 
 app.put("/azuriraj-ostreljenu-zivotinju/:sifra",authJwt.verifyToken("admin"), function (req, res) {
