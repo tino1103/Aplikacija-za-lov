@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Container, Grid, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Typography, useMediaQuery, useTheme } from '@mui/material';
 
 function PopisLovaca() {
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleLogout = () => {
         localStorage.clear();
@@ -24,10 +26,10 @@ function PopisLovaca() {
         >
             <Box sx={{ textAlign: 'center', mb: 4 }}>
                 <Typography variant="h4" component="h1">
-                    Popis Lovaca
+                    Izbornik
                 </Typography>
             </Box>
-            <Grid container spacing={2} justifyContent="center">
+            <Grid container spacing={2} direction={isMobile ? 'column' : 'row'} justifyContent="center" alignItems="center">
                 <Grid item>
                     <Button
                         variant="contained"
