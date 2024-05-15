@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
+import { Container, Box, Button, TextField, Typography } from '@mui/material';
 
 function AAktivnost() {
     const navigate = useNavigate();
@@ -21,8 +21,8 @@ function AAktivnost() {
     }, [location.state]);
 
     const handleSubmit = async (event) => {
-        event.preventDefault(); 
-        const { sifra_aktivnosti, ...updateData } = aktivnost; 
+        event.preventDefault();
+        const { sifra_aktivnosti, ...updateData } = aktivnost;
 
         try {
             const response = await axios.put(`http://localhost:3000/azuriraj-aktivnost/${aktivnost.sifra_aktivnosti}`, updateData);
@@ -35,65 +35,49 @@ function AAktivnost() {
         }
     };
 
-    // Styles
-    const formStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '50px',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        backgroundColor: '#f7f7f7'
-    };
-
-    const inputStyle = {
-        margin: '10px 0',
-        padding: '10px',
-        width: '300px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    };
-
-    const buttonStyle = {
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer'
-    };
-
-    const labelStyle = {
-        margin: '10px 0',
-        fontWeight: 'bold'
-    };
-
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <h1 style={{ color: '#333' }}>Edit Activity</h1>
+        <Container sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', backgroundColor: '#eee' }}>
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    backgroundColor: '#f7f7f7',
+                    maxWidth: '600px',
+                    width: '100%',
+                    margin: '20px',
+                }}
+            >
+                <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center', marginBottom: '20px' }}>
+                    Ažuriraj aktivnost
+                </Typography>
                 {Object.entries(aktivnost).filter(([key]) => key !== 'sifra_aktivnosti').map(([key, value]) => (
-                    <div key={key}>
-                        <label style={labelStyle}>{key.replace(/_/g, ' ')}:</label>
-                        <input
-                            type={key.includes('datum') ? "date" : key.includes('vrijeme') ? "time" : "text"}
-                            value={value}
-                            onChange={(e) => setAktivnost({ ...aktivnost, [key]: e.target.value })}
-                            style={inputStyle}
-                            required={key !== 'opis_aktivnosti'}
-                        />
-                    </div>
+                    <TextField
+                        key={key}
+                        label={key.replace(/_/g, ' ')}
+                        type={key.includes('datum') ? "date" : key.includes('vrijeme') ? "time" : "text"}
+                        value={value}
+                        onChange={(e) => setAktivnost({ ...aktivnost, [key]: e.target.value })}
+                        required={key !== 'opis_aktivnosti'}
+                        fullWidth
+                        sx={{ margin: '10px 0' }}
+                        InputLabelProps={key.includes('datum') || key.includes('vrijeme') ? { shrink: true } : {}}
+                    />
                 ))}
-                <button type="submit" style={buttonStyle}>Ažuriraj</button>
-                <br></br>
-                <button onClick={() => navigate('/raspored-aktivnosti')} style={buttonStyle}>
+                <Button type="submit" variant="contained" color="primary" sx={{ margin: '20px 0', width: '100%' }}>
+                    Ažuriraj
+                </Button>
+                <Button type="button" variant="contained" onClick={() => navigate('/raspored-aktivnosti')} sx={{ margin: '10px 0', width: '100%' }}>
                     Odustani
-                </button>
-            </form>
-        </div>
+                </Button>
+            </Box>
+        </Container>
     );
 }
 

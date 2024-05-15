@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Box, Button, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
 
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -51,101 +52,41 @@ function PopisAktivnosti() {
             });
     }, []);
 
-    const handleDelete = (sifra_aktivnosti) => {
-        const confirmDelete = window.confirm("Da li stvarno želite izbrisati aktivnost?");
-        if (confirmDelete) {
-            const token = localStorage.getItem('token');
-            const config = {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            };
-
-            axios.delete(`http://localhost:3000/obrisi-aktivnost/${sifra_aktivnosti}`, config)
-                .then(response => {
-                    if (response.data.error) {
-                        console.error('Error deleting activity:', response.data.message);
-                        alert('Error deleting activity: ' + response.data.message);
-                    } else {
-                        setAktivnosti(prevAktivnosti => prevAktivnosti.filter(aktivnost => aktivnost.sifra_aktivnosti !== sifra_aktivnosti));
-                        console.log("Deleted successfully");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting activity:', error);
-                    alert('Error deleting activity');
-                });
-        }
-    };
-
-    const buttonStyle = {
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        marginRight: '10px'
-    };
-
-    const deleteButtonStyle = {
-        ...buttonStyle,
-        backgroundColor: '#FF6347'
-    };
-
-    const tableStyle = {
-        width: '100%',
-        borderCollapse: 'separate',
-        borderSpacing: '0',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-        backgroundColor: '#f7f7f7',
-        borderRadius: '10px',
-        overflow: 'hidden'
-    };
-
-    const thTdStyle = {
-        border: '1px solid #ddd',
-        padding: '12px 15px',
-        textAlign: 'left',
-        fontSize: '14px',
-        ':hover': {
-            backgroundColor: '#f1f1f1'
-        }
-    };
-
     return (
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-           
-            <div>
-                <h1>Popis Aktivnosti</h1>
-                <table style={tableStyle}>
-                    <thead style={thTdStyle}>
-                        <tr>
-                            <th>Naziv aktivnosti</th>
-                            <th>Datum aktivnosti</th>
-                            <th>Vrijeme aktivnosti</th>
-                            <th>Opis aktivnosti</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <Container sx={{ py: 5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h4" component="h1">
+                    Popis Aktivnosti
+                </Typography>
+            </Box>
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Naziv aktivnosti</TableCell>
+                            <TableCell>Datum aktivnosti</TableCell>
+                            <TableCell>Vrijeme aktivnosti</TableCell>
+                            <TableCell>Opis aktivnosti</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
                         {aktivnosti.map((aktivnost) => (
-                            <tr key={aktivnost.sifra_aktivnosti} style={{ ':hover': { backgroundColor: '#f9f9f9' } }}>
-                                <td>{aktivnost.naziv_aktivnosti}</td>
-                                <td>{aktivnost.datum_aktivnosti}</td>
-                                <td>{aktivnost.vrijeme_aktivnosti}</td>
-                                <td>{aktivnost.opis_aktivnosti}</td>
-                                
-                            </tr>
+                            <TableRow key={aktivnost.sifra_aktivnosti}>
+                                <TableCell>{aktivnost.naziv_aktivnosti}</TableCell>
+                                <TableCell>{aktivnost.datum_aktivnosti}</TableCell>
+                                <TableCell>{aktivnost.vrijeme_aktivnosti}</TableCell>
+                                <TableCell>{aktivnost.opis_aktivnosti}</TableCell>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
-            </div>
-            <br></br>
-            <button onClick={() => navigate('/izbornik-lovac')} style={buttonStyle}>
-                Odustani
-            </button>
-        </div>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button variant="contained" onClick={() => navigate('/izbornik-lovac')}>
+                    Odustani
+                </Button>
+            </Box>
+        </Container>
     );
 }
 

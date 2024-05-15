@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Box, Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -73,83 +74,51 @@ function PopisBodova() {
         }
     };
 
-
-    const buttonStyle = {
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        marginRight: '10px'
-    };
-
-    const deleteButtonStyle = {
-        ...buttonStyle,
-        backgroundColor: '#FF6347'
-    };
-
-    const tableStyle = {
-        width: '100%',
-        borderCollapse: 'separate',
-        borderSpacing: '0',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-        backgroundColor: '#f7f7f7',
-        borderRadius: '10px',
-        overflow: 'hidden'
-    };
-
-    const thTdStyle = {
-        border: '1px solid #ddd',
-        padding: '12px 15px',
-        textAlign: 'left',
-        fontSize: '14px',
-        ':hover': {
-            backgroundColor: '#f1f1f1'
-        }
-    };
-
     return (
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <button onClick={() => navigate('/unos-bodova')} style={buttonStyle}>
+        <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#eee', padding: '20px' }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <Typography variant="h4" component="h1">
+                    Popis Bodova
+                </Typography>
+            </Box>
+            <Button variant="contained" color="primary" onClick={() => navigate('/unos-bodova')} sx={{ mb: 2 }}>
                 Unesi bod
-            </button>
-            <div>
-                <h1>Popis Bodova</h1>
-                <table style={tableStyle}>
-                    <thead style={thTdStyle}>
-                        <tr>
-                            <th>Broj bodova</th>
-                            <th>Opis</th>
-                            <th>Ime</th>
-                            <th>Prezime</th>
-                            <th>Akcije</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            </Button>
+            <TableContainer component={Paper} sx={{ maxWidth: '80%', margin: 'auto', mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Broj bodova</TableCell>
+                            <TableCell>Opis</TableCell>
+                            <TableCell>Ime</TableCell>
+                            <TableCell>Prezime</TableCell>
+                            <TableCell align="center">Akcije</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
                         {bodovi.map((bod) => (
-                            <tr key={bod.sifra_dodijeljenog_boda} style={{ ':hover': { backgroundColor: '#f9f9f9' } }}>
-                                <td>{bod.broj_bodova}</td>
-                                <td>{bod.opis_dodijeljenog_boda}</td>
-                                <td>{bod.ime}</td>
-                                <td>{bod.prezime}</td>
-                                <td>
-                                    <button onClick={() => navigate('/a-bodovi', { state: { bodovi: bod } })} style={buttonStyle}>
+                            <TableRow key={bod.sifra_dodijeljenog_boda}>
+                                <TableCell>{bod.broj_bodova}</TableCell>
+                                <TableCell>{bod.opis_dodijeljenog_boda}</TableCell>
+                                <TableCell>{bod.ime}</TableCell>
+                                <TableCell>{bod.prezime}</TableCell>
+                                <TableCell align="center">
+                                    <Button variant="contained" color="primary" onClick={() => navigate('/a-bodovi', { state: { bodovi: bod } })} sx={{ mr: 1 }}>
                                         Ažuriraj
-                                    </button>
-                                    <button onClick={() => handleDelete(bod.sifra_dodijeljenog_boda)} style={deleteButtonStyle}>Delete</button>
-                                </td>
-                            </tr>
+                                    </Button>
+                                    <Button variant="contained" color="error" onClick={() => handleDelete(bod.sifra_dodijeljenog_boda)}>
+                                        Delete
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
-            </div>
-            <br></br>
-            <button onClick={() => navigate('/glavni-izbornik')} style={buttonStyle}>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Button variant="contained" onClick={() => navigate('/glavni-izbornik')}>
                 Odustani
-            </button>
-        </div>
+            </Button>
+        </Container>
     );
 }
 

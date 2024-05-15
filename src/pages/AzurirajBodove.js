@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Box, Button, Container, TextField, Typography } from '@mui/material';
 
 function ABodovi() {
     const navigate = useNavigate();
@@ -43,65 +44,47 @@ function ABodovi() {
         }
     };
 
-    const formStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '50px',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        backgroundColor: '#f7f7f7'
-    };
-
-    const inputStyle = {
-        margin: '10px 0',
-        padding: '10px',
-        width: '300px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    };
-
-    const buttonStyle = {
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer'
-    };
-
-    const labelStyle = {
-        margin: '10px 0',
-        fontWeight: 'bold'
-    };
-
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <h1 style={{ color: '#333' }}>Update Points</h1>
-                {Object.entries(bod).map(([key, value]) => (
-                    <div key={key}>
-                        <label style={labelStyle}>{key.replace(/_/g, ' ')}:</label>
-                        <input
-                            type="text"
-                            value={value}
-                            onChange={(e) => setBod({ ...bod, [key]: e.target.value })}
-                            style={inputStyle}
-                            required
-                        />
-                    </div>
+        <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#eee' }}>
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    backgroundColor: '#f7f7f7',
+                    maxWidth: '500px', 
+                    width: '100%', 
+                    margin: '20px' 
+                }}
+            >
+                <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center', marginBottom: '20px' }}>
+                    Ažuriraj bodove
+                </Typography>
+                {Object.entries(bod).filter(([key]) => key !== 'sifra_dodijeljenog_boda').map(([key, value]) => (
+                    <TextField
+                        key={key}
+                        label={key.replace(/_/g, ' ')}
+                        value={value}
+                        onChange={(e) => setBod({ ...bod, [key]: e.target.value })}
+                        fullWidth
+                        required
+                        sx={{ margin: '10px 0' }}
+                    />
                 ))}
-                <button type="submit" style={buttonStyle}>Update</button>
-                <br />
-
-                <button onClick={() => navigate('/popis-bodova')} style={buttonStyle}>
-                    Cancel
-                </button>
-            </form>
-        </div>
+                <Button type="submit" variant="contained" color="primary" sx={{ margin: '10px 0', width: '100%' }}>
+                    Ažuriraj
+                </Button>
+                <Button onClick={() => navigate('/popis-bodova')} variant="contained" sx={{ margin: '10px 0', width: '100%' }}>
+                    Odustani
+                </Button>
+            </Box>
+        </Container>
     );
 }
 

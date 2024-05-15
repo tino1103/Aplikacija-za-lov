@@ -1,52 +1,75 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Box, Button, Container, Grid, Typography } from '@mui/material';
 
 function PopisLovaca() {
     const navigate = useNavigate();
 
-    const buttonStyle = {
-        padding: '20px 50px',
-        fontSize: '12px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        margin: '0 10px', 
-    };
-
     const handleLogout = () => {
-        localStorage.clear();  
-        navigate('/pocetna');  
+        localStorage.clear();
+        navigate('/pocetna');
     };
 
     return (
-        <div style={{
-            padding: '20px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, auto)', 
-            justifyContent: 'center',
-            alignItems: 'center',
-            gridGap: '10px', 
-            height: '100vh',
-            backgroundColor: '#eee'
-        }}>
-            
-            <button onClick={() => navigate('/korisnik-popis-ostrjela')} style={buttonStyle}>
-                Popis ostrjela
-            </button>
-            <button onClick={() => navigate('/korisnik-raspored-aktivnosti')} style={buttonStyle}>
-                Raspored aktivnosti
-            </button>
-
-            <button onClick={() => navigate('/qr-korisnik')} style={buttonStyle}>
-                Qr
-            </button>
-
-            <button onClick={handleLogout} style={{ ...buttonStyle, backgroundColor: '#FF6347' }}>
-                Odjava
-            </button>
-        </div>
+        <Container
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                backgroundColor: '#eee',
+                padding: '20px',
+            }}
+        >
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <Typography variant="h4" component="h1">
+                    Popis Lovaca
+                </Typography>
+            </Box>
+            <Grid container spacing={2} justifyContent="center">
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate('/korisnik-popis-ostrjela')}
+                        sx={{ padding: '10px 20px', fontSize: '16px' }}
+                    >
+                        Popis ostrjela
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => navigate('/korisnik-raspored-aktivnosti')}
+                        sx={{ padding: '10px 20px', fontSize: '16px' }}
+                    >
+                        Raspored aktivnosti
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate('/qr-korisnik')}
+                        sx={{ padding: '10px 20px', fontSize: '16px' }}
+                    >
+                        Qr
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={handleLogout}
+                        sx={{ padding: '10px 20px', fontSize: '16px' }}
+                    >
+                        Odjava
+                    </Button>
+                </Grid>
+            </Grid>
+        </Container>
     );
 }
 

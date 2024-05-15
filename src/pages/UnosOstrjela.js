@@ -1,10 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import {
+    Box,
+    Button,
+    Container,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    Typography,
+} from '@mui/material';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -40,7 +50,7 @@ function DataEntryForm() {
     }, []);
 
     useEffect(() => {
-        axios.get('https://c1ea478869cf.ngrok.app/vrste-zivotinja')
+        axios.get('http://localhost:3000/vrste-zivotinja')
             .then((response) => {
                 setAnimalTypes(response.data.data);
             })
@@ -67,7 +77,6 @@ function DataEntryForm() {
     }, []);
 
     useEffect(() => {
-        // Cleanup function to stop the camera when the component unmounts
         return stopCamera;
     }, []);
 
@@ -87,14 +96,12 @@ function DataEntryForm() {
         canvas.getContext('2d').drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const imageData = canvas.toDataURL('image/jpeg');
         setSlika(imageData);
-
-        // Stop the camera after capturing the image
         stopCamera();
     };
 
     const handleRetake = () => {
         setSlika('');
-        startCamera(); // Restart the camera
+        startCamera();
     };
 
     const handleSubmit = (event) => {
@@ -126,7 +133,7 @@ function DataEntryForm() {
             }
         };
 
-        axios.post('https://c1ea478869cf.ngrok.app/unos-ostrjelene-zivotinje', culledAnimalData, config)
+        axios.post('http://localhost:3000/unos-ostrjelene-zivotinje', culledAnimalData, config)
             .then(() => {
                 alert('Ostrjelena životinja je dodana.');
                 stopCamera();
@@ -146,7 +153,7 @@ function DataEntryForm() {
     const startCamera = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' } // Rear camera
+                video: { facingMode: 'environment' }
             });
             videoRef.current.srcObject = stream;
         } catch (error) {
@@ -154,111 +161,88 @@ function DataEntryForm() {
         }
     };
 
-    const containerStyle = {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        height: '100vh',
-        backgroundColor: '#eee'
-    };
-
-    const formStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '50px',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        backgroundColor: '#f7f7f7'
-    };
-
-    const inputStyle = {
-        margin: '10px 0',
-        padding: '10px',
-        width: '300px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    };
-
-    const buttonStyle = {
-        padding: '10px 20px',
-        marginTop: '10px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer'
-    };
-
-    const labelStyle = {
-        margin: '10px 0',
-        fontWeight: 'bold'
-    };
-
-    const mapStyle = {
-        width: '650px',
-        height: '650px',
-        margin: '50px'
-    };
-
-    const videoStyle = {
-        width: '300px',
-        height: '200px',
-        objectFit: 'cover',
-        backgroundColor: 'black',
-        border: '1px solid #ccc',
-        borderRadius: '8px'
-    };
-
     return (
-        <div style={containerStyle}>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <h1 style={{ color: '#333' }}>Unos odstrjelene životinje</h1>
-                <div>
-                    <label style={labelStyle}>Vrsta životinje:</label>
-                    <select
+        <Container sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', backgroundColor: '#eee' }}>
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    backgroundColor: '#f7f7f7',
+                    maxWidth: '600px',
+                    width: '100%',
+                    margin: '20px',
+                }}
+            >
+                <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center', marginBottom: '20px' }}>
+                    Unos odstrjelene životinje
+                </Typography>
+                <FormControl fullWidth sx={{ margin: '10px 0' }}>
+                    <InputLabel>Vrsta životinje</InputLabel>
+                    <Select
                         value={sifraZivotinje}
                         onChange={(e) => setSifraZivotinje(e.target.value)}
                         required
-                        style={inputStyle}
                     >
-                        <option value="">Odaberi vrstu</option>
+                        <MenuItem value="">
+                            <em>Odaberi vrstu</em>
+                        </MenuItem>
                         {animalTypes.map((animal) => (
-                            <option key={animal.sifra_zivotinje} value={animal.sifra_zivotinje}>{animal.vrsta_zivotinje}</option>
+                            <MenuItem key={animal.sifra_zivotinje} value={animal.sifra_zivotinje}>
+                                {animal.vrsta_zivotinje}
+                            </MenuItem>
                         ))}
-                    </select>
-                </div>
-                <div>
-                    <label style={labelStyle}>Lokacija odstrijela:</label>
-                    <p>{koordinate.latitude}, {koordinate.longitude}</p>
-                </div>
-                <div>
-                    <label style={labelStyle}>Dodaj sliku:</label>
+                    </Select>
+                </FormControl>
+                <Box sx={{ margin: '10px 0', textAlign: 'center' }}>
+                    <Typography variant="body1" component="p">
+                        Lokacija odstrijela: {koordinate.latitude}, {koordinate.longitude}
+                    </Typography>
+                </Box>
+                <Box sx={{ margin: '10px 0', textAlign: 'center' }}>
+                    <Typography variant="body1" component="p" sx={{ fontWeight: 'bold' }}>
+                        Dodaj sliku:
+                    </Typography>
                     {slika ? (
-                        <div>
+                        <Box sx={{ textAlign: 'center' }}>
                             <img src={slika} alt="Captured" style={{ width: '300px', height: 'auto', borderRadius: '8px', border: '1px solid #ccc' }} />
-                            <button type="button" onClick={handleRetake} style={buttonStyle}>Ponovno snimi sliku</button>
-                        </div>
+                            <Button variant="contained" color="primary" onClick={handleRetake} sx={{ margin: '10px' }}>
+                                Ponovno snimi sliku
+                            </Button>
+                        </Box>
                     ) : (
-                        <div>
-                            <video ref={videoRef} autoPlay style={videoStyle}></video>
-                            <button type="button" onClick={startCamera} style={buttonStyle}>Pokreni kameru</button>
-                            <button type="button" onClick={handleCapture} style={buttonStyle}>Usnimi sliku</button>
-                        </div>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <video ref={videoRef} autoPlay style={{ width: '300px', height: '200px', objectFit: 'cover', backgroundColor: 'black', border: '1px solid #ccc', borderRadius: '8px' }}></video>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10px' }}>
+                                <Button variant="contained" color="primary" onClick={startCamera} sx={{ margin: '5px' }}>
+                                    Pokreni kameru
+                                </Button>
+                                <Button variant="contained" color="primary" onClick={handleCapture} sx={{ margin: '5px' }}>
+                                    Usnimi sliku
+                                </Button>
+                            </Box>
+                        </Box>
                     )}
-                </div>
-                <button type="submit" style={buttonStyle}>Unesi</button>
-                <button type="button" onClick={handleCancel} style={buttonStyle}>Odustani</button>
-            </form>
+                </Box>
+                <Button type="submit" variant="contained" color="primary" sx={{ margin: '10px', width: '100%' }}>
+                    Unesi
+                </Button>
+                <Button type="button" variant="contained" onClick={handleCancel} sx={{ margin: '10px', width: '100%' }}>
+                    Odustani
+                </Button>
+                {message && <Typography color="error" sx={{ margin: '10px' }}>{message}</Typography>}
+            </Box>
             {mapInitialized && koordinate && (
                 <MapContainer
                     center={[koordinate.latitude, koordinate.longitude]}
                     zoom={15}
-                    style={mapStyle}
+                    style={{ width: '100%', height: '400px', marginTop: '20px' }}
                 >
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -269,8 +253,7 @@ function DataEntryForm() {
                     </Marker>
                 </MapContainer>
             )}
-            {message && <p>{message}</p>}
-        </div>
+        </Container>
     );
 }
 

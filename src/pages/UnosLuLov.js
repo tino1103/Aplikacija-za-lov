@@ -1,9 +1,9 @@
-// unos.js
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import Webcam from 'react-webcam';
 import jsQR from 'jsqr';
+import { Box, Button, Container, Typography, Paper } from '@mui/material';
 
 function DataEntryForm() {
     const [brojLovackeIskaznice, setBrojLovackeIskaznice] = useState('');
@@ -21,9 +21,9 @@ function DataEntryForm() {
             if (!qrScanned) {
                 captureAndSubmit();
             }
-        }, 1000); 
+        }, 1000);
 
-        return () => clearInterval(interval); 
+        return () => clearInterval(interval);
     }, [qrScanned]);
 
     const captureAndSubmit = () => {
@@ -46,7 +46,7 @@ function DataEntryForm() {
                     const scannedCodes = JSON.parse(localStorage.getItem('scannedCodes')) || {};
                     const lastScanned = scannedCodes[qrCode.data];
 
-                    if (!lastScanned || currentTime - lastScanned > 6000) { 
+                    if (!lastScanned || currentTime - lastScanned > 6000) {
                         setBrojLovackeIskaznice(qrCode.data);
                         scannedCodes[qrCode.data] = currentTime;
                         localStorage.setItem('scannedCodes', JSON.stringify(scannedCodes));
@@ -74,10 +74,10 @@ function DataEntryForm() {
             }
         };
 
-        axios.post('https://c1ea478869cf.ngrok.app/unos-osobe-u-lov', userData, config)
+        axios.post('http://localhost:3000/unos-osobe-u-lov', userData, config)
             .then(response => {
                 alert('Osoba je dodana u prisutnost.');
-                setQrScanned(true); // Prevent further scanning
+                setQrScanned(true);
                 navigate("/popis-prisutnosti");
             })
             .catch(error => {
@@ -86,32 +86,42 @@ function DataEntryForm() {
             });
     };
 
-    const formStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '50px',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        backgroundColor: '#f7f7f7'
-    };
-
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <form style={formStyle}>
-                <h1 style={{ color: '#333' }}>Unos osobe u lov</h1>
+        <Container sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', backgroundColor: '#eee' }}>
+            <Paper
+                component="form"
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    backgroundColor: '#f7f7f7',
+                    maxWidth: '600px',
+                    width: '100%',
+                    margin: '20px'
+                }}
+            >
+                <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center', marginBottom: '20px' }}>
+                    Unos osobe u lov
+                </Typography>
                 <Webcam
                     audio={false}
                     ref={webcamRef}
                     screenshotFormat="image/jpeg"
                     videoConstraints={videoConstraints}
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', borderRadius: '8px', border: '1px solid #ccc' }}
                 />
-                <p>{message}</p>
-            </form>
-        </div>
+                <Typography variant="body1" color="error" sx={{ marginTop: '10px' }}>
+                    {message}
+                </Typography>
+                <Button variant="contained" color="primary" onClick={() => navigate('/glavni-izbornik')} sx={{ marginTop: '20px' }}>
+                    Odustani
+                </Button>
+            </Paper>
+        </Container>
     );
 }
 

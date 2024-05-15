@@ -1,61 +1,13 @@
-/* app.css */
-.app-container {
-  text-align: center;
-  /* Centriranje sadržaja */
+/* App.css */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #eee; /* Siva pozadina */
+  height: 100%;
 }
 
-.button-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  /* Centriranje gumba */
-  gap: 10px;
-  /* Dodavanje prostora između gumba */
-  margin-bottom: 20px;
-  /* Dodavanje margine ispod gumba */
-}
-
-.app-button {
-  background-color: #4CAF50;
-  /* Zelena boja pozadine */
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  /* Margine oko gumba */
-  transition-duration: 0.4s;
-  /* Za glatki prelaz */
-  border: none;
-  border-radius: 4px;
-  /* Zaobljeni rubovi */
-  cursor: pointer;
-  /* Stil kursora kada je iznad gumba */
-}
-.app-button1 {
-  background-color: #ff0000;
-  /* Zelena boja pozadine */
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  /* Margine oko gumba */
-  transition-duration: 0.4s;
-  /* Za glatki prelaz */
-  border: none;
-  border-radius: 4px;
-  /* Zaobljeni rubovi */
-  cursor: pointer;
-  /* Stil kursora kada je iznad gumba */
-}
-
-.app-button:hover {
-  background-color: white;
-  /* Boja pozadine pri prelasku miša */
-  color: black;
+#root {
+  height: 100%;
+  background-color: #eee; /* Siva pozadina za cijeli root */
 }

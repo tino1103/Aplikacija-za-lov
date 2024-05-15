@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
+import { Box, Button, Container, Grid, TextField, Typography, MenuItem } from '@mui/material';
 
 function ALovac() {
     const navigate = useNavigate();
-
     const location = useLocation();
     const [lovac, setLovac] = useState({
         broj_lovacke_iskaznice: '',
@@ -25,8 +24,8 @@ function ALovac() {
     }, [location.state]);
 
     const handleSubmit = async (event) => {
-        event.preventDefault(); 
-        const { broj_lovacke_iskaznice, ...updateData } = lovac; 
+        event.preventDefault();
+        const { broj_lovacke_iskaznice, ...updateData } = lovac;
 
         try {
             const response = await axios.put(`http://localhost:3000/azuriraj-lovca/${lovac.broj_lovacke_iskaznice}`, updateData);
@@ -39,67 +38,121 @@ function ALovac() {
         }
     };
 
-    // Styles
-    const formStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '50px',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        backgroundColor: '#f7f7f7'
-    };
-
-    const inputStyle = {
-        margin: '10px 0',
-        padding: '10px',
-        width: '300px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    };
-
-    const buttonStyle = {
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer'
-    };
-
-    const labelStyle = {
-        margin: '10px 0',
-        fontWeight: 'bold'
-    };
-
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <h1 style={{ color: '#333' }}>Edit Hunter</h1>
-                {Object.entries(lovac).map(([key, value]) => (
-                    <div key={key}>
-                        <label style={labelStyle}>{key.replace(/_/g, ' ')}:</label>
-                        <input
-                            type="text"
-                            value={value}
-                            onChange={(e) => setLovac({ ...lovac, [key]: e.target.value })}
-                            style={inputStyle}
+        <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#eee' }}>
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    backgroundColor: '#f7f7f7',
+                    maxWidth: '500px', // Postavljanje maksimalne širine
+                    width: '100%', // Postavljanje širine na 100% unutar maksimalne širine
+                    margin: '20px' // Dodavanje margine za razmak od rubova
+                }}
+            >
+                <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center', marginBottom: '20px' }}>
+                    Ažuriraj lovca
+                </Typography>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Broj lovačke iskaznice"
+                            value={lovac.broj_lovacke_iskaznice}
+                            onChange={(e) => setLovac({ ...lovac, broj_lovacke_iskaznice: e.target.value })}
+                            fullWidth
+                            required
+                            disabled
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Ime"
+                            value={lovac.ime}
+                            onChange={(e) => setLovac({ ...lovac, ime: e.target.value })}
+                            fullWidth
                             required
                         />
-                    </div>
-                ))}
-                <button type="submit" style={buttonStyle}>Ažuriraj</button>
-                <br></br>
-
-                <button onClick={() => navigate('/popis-lovaca')} style={buttonStyle}>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Prezime"
+                            value={lovac.prezime}
+                            onChange={(e) => setLovac({ ...lovac, prezime: e.target.value })}
+                            fullWidth
+                            required
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Adresa"
+                            value={lovac.adresa}
+                            onChange={(e) => setLovac({ ...lovac, adresa: e.target.value })}
+                            fullWidth
+                            required
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Datum rođenja"
+                            type="date"
+                            value={lovac.datum_rodjenja}
+                            onChange={(e) => setLovac({ ...lovac, datum_rodjenja: e.target.value })}
+                            fullWidth
+                            required
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Kontakt"
+                            value={lovac.kontakt}
+                            onChange={(e) => setLovac({ ...lovac, kontakt: e.target.value })}
+                            fullWidth
+                            required
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Korisničko ime"
+                            value={lovac.korisnicko_ime}
+                            onChange={(e) => setLovac({ ...lovac, korisnicko_ime: e.target.value })}
+                            fullWidth
+                            required
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Uloga"
+                            select
+                            value={lovac.uloga}
+                            onChange={(e) => setLovac({ ...lovac, uloga: e.target.value })}
+                            fullWidth
+                            required
+                        >
+                            <MenuItem value="korisnik">Korisnik</MenuItem>
+                            <MenuItem value="admin">Admin</MenuItem>
+                        </TextField>
+                    </Grid>
+                </Grid>
+                <Button type="submit" variant="contained" color="primary" sx={{ margin: '10px 0', width: '100%' }}>
+                    Ažuriraj
+                </Button>
+                <Button onClick={() => navigate('/popis-lovaca')} variant="contained" sx={{ margin: '10px 0', width: '100%' }}>
                     Odustani
-                </button>
-            </form>
-        </div>
+                </Button>
+            </Box>
+        </Container>
     );
 }
 
 export default ALovac;
+

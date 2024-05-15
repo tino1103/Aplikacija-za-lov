@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Box, Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return [
+        ('0' + date.getDate()).slice(-2),
+        ('0' + (date.getMonth() + 1)).slice(-2),
+        date.getFullYear()
+    ].join('/');
+}
 
 function PopisOstreljeneDivljaci() {
     const [ostreljeneDivljaci, setOstreljeneDivljaci] = useState([]);
@@ -14,7 +24,7 @@ function PopisOstreljeneDivljaci() {
             }
         };
 
-        axios.get('https://c1ea478869cf.ngrok.app/popis-ostreljene-zivotinje', config)
+        axios.get('http://localhost:3000/popis-ostreljene-zivotinje', config)
             .then(response => {
                 if (response.data.error) {
                     console.error('Failed to fetch culled animals:', response.data.message);
@@ -32,15 +42,6 @@ function PopisOstreljeneDivljaci() {
             });
     }, []);
 
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return [
-            ('0' + date.getDate()).slice(-2),
-            ('0' + (date.getMonth() + 1)).slice(-2),
-            date.getFullYear()
-        ].join('/');
-    }
-
     const handleDelete = (sifra_odstrijela) => {
         const confirmDelete = window.confirm("Da li stvarno želite izbrisati odstrijeljenu divljač?");
         if (confirmDelete) {
@@ -51,7 +52,7 @@ function PopisOstreljeneDivljaci() {
                 }
             };
 
-            axios.delete(`https://c1ea478869cf.ngrok.app/brisi-odstrijel/${sifra_odstrijela}`, config)
+            axios.delete(`http://localhost:3000/brisi-odstrijel/${sifra_odstrijela}`, config)
                 .then(response => {
                     if (response.data.error) {
                         console.error('Error deleting culled animal:', response.data.message);
@@ -68,90 +69,64 @@ function PopisOstreljeneDivljaci() {
         }
     };
 
-    const buttonStyle = {
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        marginRight: '10px'
-    };
-
-    const deleteButtonStyle = {
-        ...buttonStyle,
-        backgroundColor: '#FF6347'
-    };
-
-    const tableStyle = {
-        width: '100%',
-        borderCollapse: 'separate',
-        borderSpacing: '0',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-        backgroundColor: '#f7f7f7',
-        borderRadius: '10px',
-        overflow: 'hidden'
-    };
-
-    const thTdStyle = {
-        border: '1px solid #ddd',
-        padding: '12px 15px',
-        textAlign: 'left',
-        fontSize: '14px'
-    };
-
     return (
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <button onClick={() => navigate('/unos-ostrjela')} style={buttonStyle}>
+        <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#eee', padding: '20px' }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <Typography variant="h4" component="h1">
+                    Popis Ostrjeljene Divljaci
+                </Typography>
+            </Box>
+            <Button variant="contained" color="primary" onClick={() => navigate('/unos-ostrjela')} sx={{ mb: 2 }}>
                 Unesi odstrijel
-            </button>
-            <h1>Popis Ostrjeljene Divljaci</h1>
-            <table style={tableStyle}>
-                <thead style={thTdStyle}>
-                    <tr>
-                        <th>Ime Lovca</th>
-                        <th>Prezime Lovca</th>
-                        <th>Vrsta Životinje</th>
-                        <th>Datum Odstrijela</th>
-                        <th>Vrijeme Odstrijela</th>
-                        <th>Lokacija Odstrijela</th>
-                        <th>Slika</th>
-                        <th>Akcije</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {ostreljeneDivljaci.map((divljac, index) => (
-                        <tr key={index}>
-                            <td>{divljac.ime_lovca}</td>
-                            <td>{divljac.prezime_lovca}</td>
-                            <td>{divljac.vrsta_zivotinje}</td>
-                            <td>{divljac.datum_odstrijela}</td>
-                            <td>{divljac.vrijeme_odstrijela}</td>
-                            <td>{divljac.lokacija_odstrijela}</td>
-                            <td>
-                                {divljac.slika ? (
-                                    <img
-                                        src={divljac.slika}
-                                        alt="Slika odstrjelene divljači"
-                                        style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '5px' }}
-                                    />
-                                ) : (
-                                    'Nema slike'
-                                )}
-                            </td>
-                            <td>
-                                <button onClick={() => handleDelete(divljac.sifra_odstrijela)} style={deleteButtonStyle}>Obriši</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <br />
-            <button onClick={() => navigate('/glavni-izbornik')} style={buttonStyle}>
+            </Button>
+            <TableContainer component={Paper} sx={{ maxWidth: '90%', margin: 'auto', mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Ime Lovca</TableCell>
+                            <TableCell>Prezime Lovca</TableCell>
+                            <TableCell>Vrsta Životinje</TableCell>
+                            <TableCell>Datum Odstrijela</TableCell>
+                            <TableCell>Vrijeme Odstrijela</TableCell>
+                            <TableCell>Lokacija Odstrijela</TableCell>
+                            <TableCell>Slika</TableCell>
+                            <TableCell align="center">Akcije</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {ostreljeneDivljaci.map((divljac, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{divljac.ime_lovca}</TableCell>
+                                <TableCell>{divljac.prezime_lovca}</TableCell>
+                                <TableCell>{divljac.vrsta_zivotinje}</TableCell>
+                                <TableCell>{divljac.datum_odstrijela}</TableCell>
+                                <TableCell>{divljac.vrijeme_odstrijela}</TableCell>
+                                <TableCell>{divljac.lokacija_odstrijela}</TableCell>
+                                <TableCell>
+                                    {divljac.slika ? (
+                                        <img
+                                            src={divljac.slika}
+                                            alt="Slika odstrjelene divljači"
+                                            style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '5px' }}
+                                        />
+                                    ) : (
+                                        'Nema slike'
+                                    )}
+                                </TableCell>
+                                <TableCell align="center">
+                                    <Button variant="contained" color="error" onClick={() => handleDelete(divljac.sifra_odstrijela)}>
+                                        Obriši
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Button variant="contained" onClick={() => navigate('/glavni-izbornik')}>
                 Odustani
-            </button>
-        </div>
+            </Button>
+        </Container>
     );
 }
 

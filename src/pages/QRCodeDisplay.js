@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { jwtDecode} from 'jwt-decode';  
+import {jwtDecode} from 'jwt-decode';  // Changed from import { jwtDecode } to import jwtDecode
 import { useNavigate } from 'react-router-dom';
+import { Container, Box, Button, Typography } from '@mui/material';
 
 function App() {
     const navigate = useNavigate();
@@ -20,34 +21,18 @@ function App() {
         }
     }, []);
 
-    const buttonStyle = {
-        padding: '20px 50px',
-        fontSize: '12px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        margin: '0 10px',
-    };
-
-    const labelStyle = {
-        fontSize: '18px',
-        marginTop: '20px',
-    };
-
     return (
-        <div className="App" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '40px' }}>
-            <div style={labelStyle}>
-                <strong>Broj lovacke iskaznice: </strong>{lovackaIskaznica || 'Nema iskaznice'}
-            </div>
-            <br></br>
-            <QRCode value={lovackaIskaznica || 'No ID'} size={256} />
-           <br></br>
-            <button onClick={() => navigate('/glavni-izbornik')} style={buttonStyle}>
+        <Container sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', justifyContent: 'center', backgroundColor: '#eee' }}>
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+                <Typography variant="h6" component="div" sx={{ mb: 2 }}>
+                    <strong>Broj lovacke iskaznice: </strong>{lovackaIskaznica || 'Nema iskaznice'}
+                </Typography>
+                <QRCode value={lovackaIskaznica || 'No ID'} size={256} />
+            </Box>
+            <Button variant="contained" color="primary" onClick={() => navigate('/glavni-izbornik')} sx={{ mt: 3 }}>
                 Odustani
-            </button>
-        </div>
+            </Button>
+        </Container>
     );
 }
 

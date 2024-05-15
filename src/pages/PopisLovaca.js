@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Container, Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
 
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -73,92 +74,62 @@ function PopisLovaca() {
         }
     };
 
-    const buttonStyle = {
-        padding: '10px 20px',
-        fontSize: '16px',
-        color: 'white',
-        backgroundColor: '#007BFF',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        marginRight: '10px'
-    };
-
-    const deleteButtonStyle = {
-        ...buttonStyle,
-        backgroundColor: '#FF6347'
-    };
-
-    const tableStyle = {
-        width: '100%',
-        borderCollapse: 'separate',
-        borderSpacing: '0',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-        backgroundColor: '#f7f7f7',
-        borderRadius: '10px',
-        overflow: 'hidden'
-    };
-
-    const thTdStyle = {
-        border: '1px solid #ddd',
-        padding: '12px 15px',
-        textAlign: 'left',
-        fontSize: '14px',
-        ':hover': {
-            backgroundColor: '#f1f1f1'
-        }
-    };
-
     return (
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#eee' }}>
-            <button onClick={() => navigate('/unos-lovca')} style={buttonStyle}>
-                Unesi lovca
-            </button>
-            <div>
-                <h1>Popis Lovaca</h1>
-                <table style={tableStyle}>
-                    <thead style={thTdStyle}>
-                        <tr>
-                            <th>Broj iskaznice</th>
-                            <th>Ime</th>
-                            <th>Prezime</th>
-                            <th>Adresa</th>
-                            <th>Datum rođenja</th>
-                            <th>Kontakt</th>
-                            <th>Korisničko ime</th>
-                            <th>Uloga</th>
-                            <th>Akcije</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <Container sx={{ py: 5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Popis Lovaca
+                </Typography>
+                <Button variant="contained" color="primary" onClick={() => navigate('/unos-lovca')} sx={{ mb: 2 }}>
+                    Unesi lovca
+                </Button>
+            </Box>
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Broj iskaznice</TableCell>
+                            <TableCell>Ime</TableCell>
+                            <TableCell>Prezime</TableCell>
+                            <TableCell>Adresa</TableCell>
+                            <TableCell>Datum rođenja</TableCell>
+                            <TableCell>Kontakt</TableCell>
+                            <TableCell>Korisničko ime</TableCell>
+                            <TableCell>Uloga</TableCell>
+                            <TableCell>Akcije</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
                         {lovci.map((lovac) => (
-                            <tr key={lovac.broj_lovacke_iskaznice} style={{ ':hover': { backgroundColor: '#f9f9f9' } }}>
-                                <td>{lovac.broj_lovacke_iskaznice}</td>
-                                <td>{lovac.ime}</td>
-                                <td>{lovac.prezime}</td>
-                                <td>{lovac.adresa}</td>
-                                <td>{lovac.datum_rodjenja}</td>
-                                <td>{lovac.kontakt}</td>
-                                <td>{lovac.korisnicko_ime}</td>
-                                <td>{lovac.uloga}</td>
-                                <td>
-                                    <button onClick={() => navigate('/a-lovac', { state: { lov: lovac } })} style={buttonStyle}>
+                            <TableRow key={lovac.broj_lovacke_iskaznice}>
+                                <TableCell>{lovac.broj_lovacke_iskaznice}</TableCell>
+                                <TableCell>{lovac.ime}</TableCell>
+                                <TableCell>{lovac.prezime}</TableCell>
+                                <TableCell>{lovac.adresa}</TableCell>
+                                <TableCell>{lovac.datum_rodjenja}</TableCell>
+                                <TableCell>{lovac.kontakt}</TableCell>
+                                <TableCell>{lovac.korisnicko_ime}</TableCell>
+                                <TableCell>{lovac.uloga}</TableCell>
+                                <TableCell>
+                                    <Button variant="contained" color="primary" onClick={() => navigate('/a-lovac', { state: { lov: lovac } })} sx={{ mr: 1 }}>
                                         Ažuriraj
-                                    </button>
-                                    <button onClick={() => handleDelete(lovac.broj_lovacke_iskaznice)} style={deleteButtonStyle}>Delete</button>
-                                </td>
-                            </tr>
+                                    </Button>
+                                    <Button variant="contained" color="error" onClick={() => handleDelete(lovac.broj_lovacke_iskaznice)}>
+                                        Delete
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
-            </div>
-            <br></br>
-            <button onClick={() => navigate('/glavni-izbornik')} style={buttonStyle}>
-                Odustani
-            </button>
-        </div>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Button variant="contained" onClick={() => navigate('/glavni-izbornik')}>
+                    Odustani
+                </Button>
+            </Box>
+        </Container>
     );
 }
 
 export default PopisLovaca;
-
